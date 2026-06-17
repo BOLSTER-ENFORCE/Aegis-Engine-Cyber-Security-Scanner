@@ -601,7 +601,10 @@ def risk_metrics_dashboard(request):
 def api_live_alerts(request):
     """Fetch live alerts via AJAX"""
     
-    limit = int(request.GET.get('limit', 10))
+    try:
+        limit = max(1, min(int(request.GET.get('limit', 10)), 100))
+    except (TypeError, ValueError):
+        limit = 10
     
     alerts = RealTimeAlert.objects.filter(
         is_resolved=False
@@ -668,7 +671,10 @@ def api_risk_score(request):
 def api_recent_threats(request):
     """Get recent detected threats"""
     
-    limit = int(request.GET.get('limit', 5))
+    try:
+        limit = max(1, min(int(request.GET.get('limit', 5)), 100))
+    except (TypeError, ValueError):
+        limit = 5
     
     threats = ThreatIntelMatch.objects.select_related().order_by(
         '-matched_at'
