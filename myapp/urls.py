@@ -1,4 +1,4 @@
-from django.urls import path
+from django.urls import path, include
 
 from . import views
 
@@ -43,4 +43,7 @@ urlpatterns = [
     path("report/pdf/", views.download_scan_pdf, name="download_scan_pdf"),
     path("report/json/", views.export_json_report, name="export_json_report"),
     path("api/dashboard-metrics/", views.api_dashboard_metrics, name="api_dashboard_metrics"),
+    
+    # Advanced threat detection modules
+    path("advanced/", include("myapp.advanced_urls")),
 ]
