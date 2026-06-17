@@ -1,0 +1,768 @@
+/* ============================================================
+   AEGIS ENGINE - DARK NEON CYBER THEME
+   Advanced Cybersecurity Platform UI/UX
+   ============================================================ */
+
+:root {
+    /* Primary Colors - Neon Cyan/Purple */
+    --primary-cyan: #00d4ff;
+    --primary-purple: #a855f7;
+    --primary-dark: #0a0e27;
+    --primary-darker: #050812;
+    
+    /* Accent Colors */
+    --accent-red: #ff006e;
+    --accent-green: #00ff88;
+    --accent-yellow: #ffb800;
+    --accent-orange: #ff6600;
+    
+    /* Neutral Colors */
+    --text-primary: #ffffff;
+    --text-secondary: #b0b8c4;
+    --text-muted: #6b7684;
+    --bg-light: #1a1f3a;
+    --bg-medium: #0f1429;
+    --bg-dark: #0a0e27;
+    
+    /* Borders & Shadows */
+    --border-glow: 0 0 20px rgba(0, 212, 255, 0.3);
+    --border-glow-red: 0 0 20px rgba(255, 0, 110, 0.3);
+    --shadow-lg: 0 20px 60px rgba(0, 0, 0, 0.8);
+    --shadow-md: 0 10px 30px rgba(0, 0, 0, 0.5);
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html, body {
+    background: linear-gradient(135deg, #050812 0%, #0a0e27 50%, #1a1f3a 100%);
+    color: var(--text-primary);
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    overflow-x: hidden;
+}
+
+/* ============================================================
+   ANIMATED BACKGROUND PARTICLES
+   ============================================================ */
+
+.particles-bg {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -1;
+    background: linear-gradient(135deg, #050812 0%, #0a0e27 50%, #1a1f3a 100%);
+}
+
+.particle {
+    position: absolute;
+    width: 2px;
+    height: 2px;
+    background: var(--primary-cyan);
+    border-radius: 50%;
+    opacity: 0.5;
+    animation: float 20s infinite linear;
+}
+
+@keyframes float {
+    0% {
+        transform: translateY(100vh) translateX(0);
+        opacity: 0;
+    }
+    10% {
+        opacity: 0.5;
+    }
+    90% {
+        opacity: 0.5;
+    }
+    100% {
+        transform: translateY(-100vh) translateX(100px);
+        opacity: 0;
+    }
+}
+
+/* ============================================================
+   CONTAINER & LAYOUT
+   ============================================================ */
+
+.container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+.card {
+    background: linear-gradient(135deg, #1a1f3a 0%, #16192e 100%);
+    border: 1px solid rgba(0, 212, 255, 0.2);
+    border-radius: 12px;
+    padding: 24px;
+    backdrop-filter: blur(10px);
+    box-shadow: var(--shadow-md);
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.card:hover {
+    border-color: var(--primary-cyan);
+    box-shadow: var(--border-glow), var(--shadow-lg);
+    transform: translateY(-4px);
+}
+
+.card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(0, 212, 255, 0.1), transparent);
+    transition: left 0.5s;
+}
+
+.card:hover::before {
+    left: 100%;
+}
+
+/* ============================================================
+   NAVIGATION & HEADER
+   ============================================================ */
+
+nav {
+    background: linear-gradient(180deg, #0a0e27 0%, rgba(10, 14, 39, 0.95) 100%);
+    border-bottom: 1px solid rgba(0, 212, 255, 0.2);
+    backdrop-filter: blur(10px);
+    padding: 1rem 2rem;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+}
+
+.navbar-brand {
+    font-size: 1.5rem;
+    font-weight: bold;
+    background: linear-gradient(90deg, var(--primary-cyan), var(--primary-purple));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    text-decoration: none;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.navbar-brand::before {
+    content: '⚔️';
+    font-size: 1.8rem;
+}
+
+nav a {
+    color: var(--text-secondary);
+    text-decoration: none;
+    padding: 0.5rem 1rem;
+    border-radius: 6px;
+    transition: all 0.3s ease;
+    position: relative;
+}
+
+nav a::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 0;
+    height: 2px;
+    background: var(--primary-cyan);
+    transition: width 0.3s ease;
+}
+
+nav a:hover,
+nav a.active {
+    color: var(--primary-cyan);
+}
+
+nav a:hover::after,
+nav a.active::after {
+    width: 100%;
+}
+
+/* ============================================================
+   BUTTONS
+   ============================================================ */
+
+.btn {
+    padding: 10px 24px;
+    border: none;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+    text-decoration: none;
+    display: inline-block;
+}
+
+.btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: rgba(255, 255, 255, 0.1);
+    transition: left 0.4s ease;
+    z-index: -1;
+}
+
+.btn:hover::before {
+    left: 100%;
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, var(--primary-cyan), var(--primary-purple));
+    color: #000;
+    box-shadow: 0 0 20px rgba(0, 212, 255, 0.4);
+}
+
+.btn-primary:hover {
+    box-shadow: 0 0 30px rgba(0, 212, 255, 0.6);
+    transform: translateY(-2px);
+}
+
+.btn-secondary {
+    background: transparent;
+    color: var(--primary-cyan);
+    border: 2px solid var(--primary-cyan);
+}
+
+.btn-secondary:hover {
+    background: rgba(0, 212, 255, 0.1);
+    box-shadow: var(--border-glow);
+}
+
+.btn-danger {
+    background: linear-gradient(135deg, var(--accent-red), #ff4444);
+    color: white;
+    box-shadow: 0 0 20px rgba(255, 0, 110, 0.4);
+}
+
+.btn-danger:hover {
+    box-shadow: 0 0 30px rgba(255, 0, 110, 0.6);
+}
+
+.btn-success {
+    background: linear-gradient(135deg, var(--accent-green), #00cc66);
+    color: #000;
+    box-shadow: 0 0 20px rgba(0, 255, 136, 0.4);
+}
+
+.btn-success:hover {
+    box-shadow: 0 0 30px rgba(0, 255, 136, 0.6);
+}
+
+/* ============================================================
+   FORMS & INPUTS
+   ============================================================ */
+
+.form-group {
+    margin-bottom: 1.5rem;
+}
+
+label {
+    display: block;
+    margin-bottom: 0.5rem;
+    color: var(--text-secondary);
+    font-weight: 500;
+    font-size: 0.95rem;
+}
+
+input[type="text"],
+input[type="email"],
+input[type="password"],
+input[type="number"],
+textarea,
+select {
+    width: 100%;
+    padding: 12px 16px;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(0, 212, 255, 0.2);
+    border-radius: 8px;
+    color: var(--text-primary);
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    font-family: inherit;
+}
+
+input[type="text"]:focus,
+input[type="email"]:focus,
+input[type="password"]:focus,
+input[type="number"]:focus,
+textarea:focus,
+select:focus {
+    outline: none;
+    border-color: var(--primary-cyan);
+    background: rgba(0, 212, 255, 0.05);
+    box-shadow: 0 0 20px rgba(0, 212, 255, 0.2);
+}
+
+textarea {
+    resize: vertical;
+    min-height: 120px;
+}
+
+/* ============================================================
+   PASSWORD STRENGTH METER
+   ============================================================ */
+
+.password-strength {
+    margin-top: 0.5rem;
+    height: 4px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 2px;
+    overflow: hidden;
+}
+
+.password-strength-bar {
+    height: 100%;
+    transition: all 0.3s ease;
+    width: 0%;
+}
+
+.password-strength-bar.weak {
+    background: var(--accent-red);
+    width: 33%;
+}
+
+.password-strength-bar.medium {
+    background: var(--accent-yellow);
+    width: 66%;
+}
+
+.password-strength-bar.strong {
+    background: var(--accent-green);
+    width: 100%;
+}
+
+/* ============================================================
+   PASSWORD TOGGLE
+   ============================================================ */
+
+.password-toggle {
+    position: relative;
+}
+
+.password-toggle .toggle-btn {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    color: var(--primary-cyan);
+    cursor: pointer;
+    font-size: 1.2rem;
+    transition: all 0.3s ease;
+}
+
+.password-toggle .toggle-btn:hover {
+    scale: 1.2;
+    filter: drop-shadow(0 0 8px var(--primary-cyan));
+}
+
+/* ============================================================
+   DASHBOARD CARDS & METRICS
+   ============================================================ */
+
+.metric-card {
+    background: linear-gradient(135deg, #1a1f3a 0%, #16192e 100%);
+    border: 1px solid rgba(0, 212, 255, 0.2);
+    border-radius: 12px;
+    padding: 24px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+}
+
+.metric-card::after {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -50%;
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(circle, rgba(0, 212, 255, 0.1), transparent);
+    pointer-events: none;
+}
+
+.metric-value {
+    font-size: 2.5rem;
+    font-weight: bold;
+    background: linear-gradient(90deg, var(--primary-cyan), var(--primary-purple));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    margin-bottom: 0.5rem;
+}
+
+.metric-label {
+    color: var(--text-secondary);
+    font-size: 0.95rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+/* ============================================================
+   RISK SCORE VISUALIZATION
+   ============================================================ */
+
+.risk-score-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    width: 200px;
+    height: 200px;
+    margin: 0 auto;
+}
+
+.risk-score-circle {
+    width: 160px;
+    height: 160px;
+    border-radius: 50%;
+    background: conic-gradient(
+        var(--accent-green) 0deg,
+        var(--accent-yellow) 120deg,
+        var(--accent-red) 240deg,
+        var(--accent-green) 360deg
+    );
+    padding: 3px;
+    position: relative;
+    animation: spin 20s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.risk-score-inner {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #1a1f3a 0%, #16192e 100%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+}
+
+.risk-score-text {
+    font-size: 2rem;
+    font-weight: bold;
+    color: var(--primary-cyan);
+}
+
+.risk-score-label {
+    color: var(--text-secondary);
+    font-size: 0.85rem;
+}
+
+/* ============================================================
+   ALERTS & NOTIFICATIONS
+   ============================================================ */
+
+.alert {
+    padding: 16px 20px;
+    border-radius: 8px;
+    margin-bottom: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    border-left: 4px solid;
+    animation: slideIn 0.4s ease;
+}
+
+@keyframes slideIn {
+    from {
+        transform: translateX(-100%);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+.alert-info {
+    background: rgba(0, 212, 255, 0.1);
+    border-left-color: var(--primary-cyan);
+    color: var(--primary-cyan);
+}
+
+.alert-success {
+    background: rgba(0, 255, 136, 0.1);
+    border-left-color: var(--accent-green);
+    color: var(--accent-green);
+}
+
+.alert-warning {
+    background: rgba(255, 184, 0, 0.1);
+    border-left-color: var(--accent-yellow);
+    color: var(--accent-yellow);
+}
+
+.alert-danger {
+    background: rgba(255, 0, 110, 0.1);
+    border-left-color: var(--accent-red);
+    color: var(--accent-red);
+}
+
+.alert-icon {
+    font-size: 1.5rem;
+}
+
+/* ============================================================
+   TABLES
+   ============================================================ */
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 2rem;
+}
+
+thead {
+    background: rgba(0, 212, 255, 0.1);
+    border-bottom: 2px solid rgba(0, 212, 255, 0.3);
+}
+
+th {
+    padding: 16px;
+    text-align: left;
+    color: var(--primary-cyan);
+    font-weight: 600;
+    text-transform: uppercase;
+    font-size: 0.85rem;
+    letter-spacing: 1px;
+}
+
+td {
+    padding: 12px 16px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+tbody tr {
+    transition: all 0.3s ease;
+}
+
+tbody tr:hover {
+    background: rgba(0, 212, 255, 0.05);
+    border-left: 3px solid var(--primary-cyan);
+}
+
+/* ============================================================
+   LOADING ANIMATIONS
+   ============================================================ */
+
+.loader {
+    display: inline-block;
+    width: 50px;
+    height: 50px;
+}
+
+.loader::after {
+    content: " ";
+    display: block;
+    width: 40px;
+    height: 40px;
+    margin: 5px;
+    border-radius: 50%;
+    border: 4px solid var(--primary-cyan);
+    border-color: var(--primary-cyan) transparent var(--primary-cyan) transparent;
+    animation: loader 1.2s linear infinite;
+}
+
+@keyframes loader {
+    0% {
+        transform: rotate(0deg);
+    }
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+/* ============================================================
+   SIDEBAR NAVIGATION
+   ============================================================ */
+
+.sidebar {
+    background: linear-gradient(180deg, #0f1429 0%, #0a0e27 100%);
+    border-right: 1px solid rgba(0, 212, 255, 0.2);
+    width: 280px;
+    height: 100vh;
+    position: fixed;
+    left: 0;
+    top: 0;
+    padding-top: 80px;
+    overflow-y: auto;
+    z-index: 50;
+}
+
+.sidebar-menu {
+    list-style: none;
+}
+
+.sidebar-menu li {
+    margin: 0;
+}
+
+.sidebar-menu a {
+    display: flex;
+    align-items: center;
+    padding: 12px 20px;
+    color: var(--text-secondary);
+    text-decoration: none;
+    transition: all 0.3s ease;
+    border-left: 3px solid transparent;
+    gap: 12px;
+}
+
+.sidebar-menu a:hover,
+.sidebar-menu a.active {
+    color: var(--primary-cyan);
+    background: rgba(0, 212, 255, 0.1);
+    border-left-color: var(--primary-cyan);
+}
+
+.main-content {
+    margin-left: 280px;
+    padding: 30px;
+}
+
+/* ============================================================
+   THREAT INDICATORS & STATUS BADGES
+   ============================================================ */
+
+.badge {
+    display: inline-block;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.badge-critical {
+    background: rgba(255, 0, 110, 0.2);
+    color: var(--accent-red);
+    border: 1px solid var(--accent-red);
+    animation: pulse-red 2s infinite;
+}
+
+.badge-high {
+    background: rgba(255, 102, 0, 0.2);
+    color: var(--accent-orange);
+    border: 1px solid var(--accent-orange);
+}
+
+.badge-medium {
+    background: rgba(255, 184, 0, 0.2);
+    color: var(--accent-yellow);
+    border: 1px solid var(--accent-yellow);
+}
+
+.badge-low {
+    background: rgba(0, 255, 136, 0.2);
+    color: var(--accent-green);
+    border: 1px solid var(--accent-green);
+}
+
+@keyframes pulse-red {
+    0%, 100% {
+        box-shadow: 0 0 10px rgba(255, 0, 110, 0.4);
+    }
+    50% {
+        box-shadow: 0 0 20px rgba(255, 0, 110, 0.8);
+    }
+}
+
+/* ============================================================
+   ANIMATED GLOW EFFECTS
+   ============================================================ */
+
+.glow {
+    animation: glow 2s ease-in-out infinite;
+}
+
+@keyframes glow {
+    0%, 100% {
+        text-shadow: 0 0 10px var(--primary-cyan);
+        box-shadow: 0 0 20px rgba(0, 212, 255, 0.4);
+    }
+    50% {
+        text-shadow: 0 0 20px var(--primary-cyan);
+        box-shadow: 0 0 30px rgba(0, 212, 255, 0.6);
+    }
+}
+
+/* ============================================================
+   RESPONSIVE DESIGN
+   ============================================================ */
+
+@media (max-width: 768px) {
+    .sidebar {
+        width: 70px;
+    }
+    
+    .sidebar-menu a span {
+        display: none;
+    }
+    
+    .main-content {
+        margin-left: 70px;
+    }
+    
+    .navbar-brand span {
+        display: none;
+    }
+    
+    .card {
+        padding: 16px;
+    }
+    
+    .metric-value {
+        font-size: 1.8rem;
+    }
+}
+
+/* ============================================================
+   FOOTER
+   ============================================================ */
+
+footer {
+    background: linear-gradient(180deg, #0a0e27 0%, rgba(10, 14, 39, 0.95) 100%);
+    border-top: 1px solid rgba(0, 212, 255, 0.2);
+    color: var(--text-secondary);
+    padding: 2rem;
+    text-align: center;
+    margin-top: 4rem;
+}
+
+footer a {
+    color: var(--primary-cyan);
+    text-decoration: none;
+    transition: all 0.3s ease;
+}
+
+footer a:hover {
+    text-decoration: underline;
+    filter: drop-shadow(0 0 8px var(--primary-cyan));
+}
