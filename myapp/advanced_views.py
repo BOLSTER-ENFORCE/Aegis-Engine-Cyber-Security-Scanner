@@ -4,6 +4,7 @@ Advanced Threat Detection Views - Intermediate/Advanced Cybersecurity Module
 
 import json
 import hashlib
+import logging
 from datetime import datetime, timedelta
 from django.contrib.auth.decorators import login_required
 from django.http import JsonResponse
@@ -34,6 +35,8 @@ from .advanced_models import (
     AttackPatternDetection,
     RiskMetric,
 )
+
+logger = logging.getLogger(__name__)
 
 
 # ==========================================================
@@ -601,7 +604,11 @@ def risk_metrics_dashboard(request):
 def api_live_alerts(request):
     """Fetch live alerts via AJAX"""
     
-    limit = int(request.GET.get('limit', 10))
+    try:
+        limit = int(request.GET.get('limit', 10))
+    except (ValueError, TypeError):
+        limit = 10
+    limit = max(1, min(limit, 100))
     
     alerts = RealTimeAlert.objects.filter(
         is_resolved=False
@@ -668,7 +675,11 @@ def api_risk_score(request):
 def api_recent_threats(request):
     """Get recent detected threats"""
     
-    limit = int(request.GET.get('limit', 5))
+    try:
+        limit = int(request.GET.get('limit', 5))
+    except (ValueError, TypeError):
+        limit = 5
+    limit = max(1, min(limit, 100))
     
     threats = ThreatIntelMatch.objects.select_related().order_by(
         '-matched_at'

@@ -1,4 +1,5 @@
 import hashlib
+import logging
 import os
 import platform
 import re
@@ -7,6 +8,8 @@ import uuid
 from pathlib import Path
 
 import psutil
+
+logger = logging.getLogger(__name__)
 
 
 COMMON_PORTS = {
@@ -107,7 +110,8 @@ def _sha256(path):
             for chunk in iter(lambda: handle.read(1024 * 1024), b""):
                 digest.update(chunk)
         return digest.hexdigest()
-    except OSError:
+    except OSError as exc:
+        logger.debug("Cannot hash %s: %s", path, exc)
         return ""
 
 
@@ -138,7 +142,8 @@ def _local_ip():
         with socket.socket(socket.AF_INET, socket.SOCK_DGRAM) as sock:
             sock.connect(("8.8.8.8", 80))
             return sock.getsockname()[0]
-    except OSError:
+    except OSError as exc:
+        logger.info("Local IP detection fell back to loopback: %s", exc)
         return "127.0.0.1"
 
 
@@ -352,7 +357,8 @@ def credential_file_scan(path):
     matches = []
     try:
         text = path.read_text(encoding="utf-8", errors="ignore")
-    except OSError:
+    except OSError as exc:
+        logger.debug("Cannot read %s for credential scan: %s", path, exc)
         return matches
     for label, pattern in CREDENTIAL_PATTERNS.items():
         if pattern.search(text):
@@ -362,7 +368,12 @@ def credential_file_scan(path):
 
 def exposure_assessment():
     shares = []
-    for partition in psutil.disk_partitions(all=False):
+    try:
+        partitions = psutil.disk_partitions(all=False)
+    except (OSError, psutil.Error) as exc:
+        logger.warning("Failed to enumerate partitions for exposure assessment: %s", exc)
+        return shares
+    for partition in partitions:
         if "removable" in partition.opts.lower():
             shares.append({
                 "share": partition.device,

@@ -1,4 +1,5 @@
 import json
+import logging
 
 from django.contrib import messages
 from django.contrib.admin.views.decorators import staff_member_required
@@ -26,6 +27,7 @@ from .models import (
 )
 from .scan_engine import active_network_connections, osi_model, run_combined_scan
 
+logger = logging.getLogger(__name__)
 
 User = get_user_model()
 
@@ -282,8 +284,13 @@ def _save_scan(request, data):
 @login_required
 def combined_scan(request):
     if request.method == "POST":
-        data = run_combined_scan(request.user, "combined")
-        result = _save_scan(request, data)
+        try:
+            data = run_combined_scan(request.user, "combined")
+            result = _save_scan(request, data)
+        except Exception:
+            logger.exception("Combined scan failed for user %s", request.user.username)
+            messages.error(request, "The scan could not be completed. Please try again later.")
+            return redirect("combined_scan")
         track_activity(request, "combined scan", f"Started scan #{result.id}")
         return redirect("scan_result", result_id=result.id)
 
@@ -313,8 +320,13 @@ def scan_result(request, result_id):
 @login_required
 def system_scan(request):
     if request.method == "POST":
-        data = run_combined_scan(request.user, "system")
-        result = _save_scan(request, data)
+        try:
+            data = run_combined_scan(request.user, "system")
+            result = _save_scan(request, data)
+        except Exception:
+            logger.exception("System scan failed for user %s", request.user.username)
+            messages.error(request, "The scan could not be completed. Please try again later.")
+            return redirect("system_scan")
         track_activity(request, "system scan", f"Started scan #{result.id}")
         return redirect("scan_result", result_id=result.id)
     latest_scan = ScanResult.objects.filter(user=request.user).order_by("-created_at").first()
@@ -324,8 +336,13 @@ def system_scan(request):
 @login_required
 def network_scan(request):
     if request.method == "POST":
-        data = run_combined_scan(request.user, "network")
-        result = _save_scan(request, data)
+        try:
+            data = run_combined_scan(request.user, "network")
+            result = _save_scan(request, data)
+        except Exception:
+            logger.exception("Network scan failed for user %s", request.user.username)
+            messages.error(request, "The scan could not be completed. Please try again later.")
+            return redirect("network_scan")
         track_activity(request, "network scan", f"Started scan #{result.id}")
         return redirect("scan_result", result_id=result.id)
     latest_scan = ScanResult.objects.filter(user=request.user).order_by("-created_at").first()
@@ -335,8 +352,13 @@ def network_scan(request):
 @login_required
 def threat_detection(request):
     if request.method == "POST":
-        data = run_combined_scan(request.user, "threat detection")
-        result = _save_scan(request, data)
+        try:
+            data = run_combined_scan(request.user, "threat detection")
+            result = _save_scan(request, data)
+        except Exception:
+            logger.exception("Threat detection scan failed for user %s", request.user.username)
+            messages.error(request, "The scan could not be completed. Please try again later.")
+            return redirect("threat_detection")
         track_activity(request, "threat detection", f"Started scan #{result.id}")
         return redirect("scan_result", result_id=result.id)
     latest_scan = ScanResult.objects.filter(user=request.user).order_by("-created_at").first()
@@ -402,40 +424,45 @@ def download_scan_pdf(request, result_id=None):
         return redirect("dashboard")
 
     track_activity(request, "pdf report", f"Downloaded scan #{result.id}")
-    response = HttpResponse(content_type="application/pdf")
-    response["Content-Disposition"] = f'attachment; filename="aegis_scan_{result.id}.pdf"'
-    pdf = canvas.Canvas(response, pagesize=letter)
-    width, height = letter
-    y = height - 50
+    try:
+        response = HttpResponse(content_type="application/pdf")
+        response["Content-Disposition"] = f'attachment; filename="aegis_scan_{result.id}.pdf"'
+        pdf = canvas.Canvas(response, pagesize=letter)
+        width, height = letter
+        y = height - 50
 
-    def line(text, size=10, bold=False):
-        nonlocal y
-        if y < 60:
-            pdf.showPage()
-            y = height - 50
-        pdf.setFont("Helvetica-Bold" if bold else "Helvetica", size)
-        pdf.drawString(45, y, str(text)[:110])
-        y -= 16
+        def line(text, size=10, bold=False):
+            nonlocal y
+            if y < 60:
+                pdf.showPage()
+                y = height - 50
+            pdf.setFont("Helvetica-Bold" if bold else "Helvetica", size)
+            pdf.drawString(45, y, str(text)[:110])
+            y -= 16
 
-    line("Aegis Engine Security Scan Report", 16, True)
-    line(f"User: {result.user.username if result.user else 'Unknown'}")
-    line(f"Date: {result.created_at}")
-    line(f"Score: {result.score} / 100")
-    line(f"Risk level: {result.risk_level}", 12, True)
-    line("")
-    line("Open Ports", 12, True)
-    for port in result.open_ports[:40]:
-        line(f"{port.get('protocol')} {port.get('port')} {port.get('service')} risk={port.get('risk')} - {port.get('resolution')}")
-    line("")
-    line("Detected Files", 12, True)
-    for item in result.detected_files[:40]:
-        line(f"{item.get('name')} risk={item.get('risk')} path={item.get('path')}")
-    line("")
-    line("Recommendations", 12, True)
-    for rec in result.recommendations:
-        line(f"- {rec}")
-    pdf.save()
-    return response
+        line("Aegis Engine Security Scan Report", 16, True)
+        line(f"User: {result.user.username if result.user else 'Unknown'}")
+        line(f"Date: {result.created_at}")
+        line(f"Score: {result.score} / 100")
+        line(f"Risk level: {result.risk_level}", 12, True)
+        line("")
+        line("Open Ports", 12, True)
+        for port in result.open_ports[:40]:
+            line(f"{port.get('protocol')} {port.get('port')} {port.get('service')} risk={port.get('risk')} - {port.get('resolution')}")
+        line("")
+        line("Detected Files", 12, True)
+        for item in result.detected_files[:40]:
+            line(f"{item.get('name')} risk={item.get('risk')} path={item.get('path')}")
+        line("")
+        line("Recommendations", 12, True)
+        for rec in result.recommendations:
+            line(f"- {rec}")
+        pdf.save()
+        return response
+    except Exception:
+        logger.exception("PDF generation failed for scan #%s", result.id)
+        messages.error(request, "PDF report could not be generated. Please try again later.")
+        return redirect("scan_result", result_id=result.id)
 
 
 @login_required
@@ -461,7 +488,11 @@ def admin_dashboard(request):
     active_sessions = Session.objects.filter(expire_date__gte=timezone.now())
     active_user_ids = []
     for session in active_sessions:
-        data = session.get_decoded()
+        try:
+            data = session.get_decoded()
+        except Exception:
+            logger.warning("Failed to decode session %s", session.session_key)
+            continue
         user_id = data.get("_auth_user_id")
         if user_id:
             active_user_ids.append(user_id)
@@ -519,7 +550,11 @@ def blogs(request):
 def api_dashboard_metrics(request):
     latest_scan = ScanResult.objects.filter(user=request.user).order_by("-created_at").first()
     user_scans = list(ScanResult.objects.filter(user=request.user).order_by("-created_at")[:12])
-    network_rows = active_network_connections(limit=20)
+    try:
+        network_rows = active_network_connections(limit=20)
+    except Exception:
+        logger.exception("Failed to fetch network connections for dashboard metrics")
+        network_rows = []
     alerts = []
     if latest_scan:
         if latest_scan.risk_level in {"HIGH", "CRITICAL"}:
