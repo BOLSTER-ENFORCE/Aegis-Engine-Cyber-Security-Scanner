@@ -1,9 +1,55 @@
 {% extends "base.html" %}
+{% block title %}Scanner Launcher | Aegis Engine{% endblock %}
 {% block content %}
-<h2>Launcher</h2>
-<ul>
-  <li><a href="{% url 'system_features' %}">System Scan</a></li>
-  <li><a href="{% url 'network_details' %}">Network Threats</a></li>
-  <li><a href="{% url 'threat_detection' %}">Threat Detection</a></li>
-</ul>
+<h1>Scanner Launcher</h1>
+<p class="muted">Select a module to begin scanning. {% if user.is_superuser %}<span style="color:var(--accent);">Admin mode — all modules unlocked.</span>{% endif %}</p>
+
+<h2>Core Modules</h2>
+<div class="grid">
+{% for m in core_modules %}
+    <a href="{{ m.url }}" class="card" style="text-decoration:none;">
+        <div style="font-size:2rem; margin-bottom:8px;">{{ m.icon }}</div>
+        <h3>{{ m.name }}</h3>
+        <p>{{ m.desc }}</p>
+    </a>
+{% endfor %}
+</div>
+
+<h2 style="margin-top:24px;">Advanced Threat Detection</h2>
+<div class="grid">
+{% for m in advanced_modules %}
+    <a href="{{ m.url }}" class="card" style="text-decoration:none;">
+        <div style="font-size:2rem; margin-bottom:8px;">{{ m.icon }}</div>
+        <h3>{{ m.name }}</h3>
+        <p>{{ m.desc }}</p>
+    </a>
+{% endfor %}
+</div>
+
+<h2 style="margin-top:24px;">Incident Response &amp; Reporting</h2>
+<div class="grid">
+{% for m in response_modules %}
+    <a href="{{ m.url }}" class="card" style="text-decoration:none;">
+        <div style="font-size:2rem; margin-bottom:8px;">{{ m.icon }}</div>
+        <h3>{{ m.name }}</h3>
+        <p>{{ m.desc }}</p>
+    </a>
+{% endfor %}
+</div>
+
+{% if user.is_superuser %}
+<h2 style="margin-top:24px;">Admin Tools</h2>
+<div class="grid">
+    <a href="{% url 'admin_dashboard' %}" class="card" style="text-decoration:none;">
+        <div style="font-size:2rem; margin-bottom:8px;">&#x1f6e0;</div>
+        <h3>Admin Dashboard</h3>
+        <p>User sessions, activity logs, contact messages, scan history.</p>
+    </a>
+    <a href="{% url 'advanced:risk_metrics' %}" class="card" style="text-decoration:none;">
+        <div style="font-size:2rem; margin-bottom:8px;">&#x1f4ca;</div>
+        <h3>Risk Metrics</h3>
+        <p>Organisation-wide risk metrics, trend analysis, scoring dashboard.</p>
+    </a>
+</div>
+{% endif %}
 {% endblock %}

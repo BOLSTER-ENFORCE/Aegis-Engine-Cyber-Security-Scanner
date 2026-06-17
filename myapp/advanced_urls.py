@@ -5,6 +5,8 @@ Advanced Threat Detection URLs - Route configuration for intermediate/advanced m
 from django.urls import path
 from . import advanced_views
 
+app_name = "advanced"
+
 urlpatterns = [
     
     # ========== MALWARE ANALYSIS ==========

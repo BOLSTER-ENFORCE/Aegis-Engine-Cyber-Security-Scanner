@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% block title %}IOC Detail | Aegis Engine{% endblock %}
+{% block content %}
+<h1>&#x1f3af; IOC Lookup Result</h1>
+
+<div class="panel">
+    <table>
+        <tr><td class="muted">Type</td><td>{{ ioc_type }}</td></tr>
+        <tr><td class="muted">Value</td><td style="font-family:monospace; word-break:break-all;">{{ ioc_value }}</td></tr>
+    </table>
+</div>
+
+{% if ioc %}
+<h2 style="margin-top:24px;">IOC Record</h2>
+<div class="panel">
+    <table>
+        <tr><td class="muted">Source</td><td>{{ ioc.source }}</td></tr>
+        <tr><td class="muted">Severity</td><td><span class="badge badge-{{ ioc.severity|lower }}">{{ ioc.severity }}</span></td></tr>
+        <tr><td class="muted">Active</td><td>{% if ioc.is_active %}Yes{% else %}No{% endif %}</td></tr>
+        <tr><td class="muted">Added</td><td>{{ ioc.created_at|date:"Y-m-d H:i" }}</td></tr>
+    </table>
+</div>
+{% endif %}
+
+{% if matches %}
+<h2 style="margin-top:24px;">Threat Matches</h2>
+<div class="table-wrapper">
+    <table>
+        <thead><tr><th>Matched Value</th><th>Source</th><th>Confidence</th><th>Time</th></tr></thead>
+        <tbody>
+            {% for m in matches %}
+            <tr>
+                <td style="font-family:monospace; font-size:12px;">{{ m.matched_value|truncatechars:40 }}</td>
+                <td>{{ m.source }}</td>
+                <td>{{ m.confidence }}%</td>
+                <td>{{ m.matched_at|date:"Y-m-d H:i" }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% else %}
+<p class="muted" style="margin-top:16px;">No threat matches found for this indicator.</p>
+{% endif %}
+
+<a href="{% url 'advanced:threat_hunting' %}" class="btn" style="margin-top:16px;">Back to Threat Hunting</a>
+{% endblock %}

@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% block title %}Behavioral Threats | Aegis Engine{% endblock %}
+{% block content %}
+<h1>&#x1f4ca; Behavioral Threat Detection</h1>
+
+<section class="grid">
+    <div class="card" style="text-align:center;">
+        <h3>Total Detections</h3>
+        <div style="font-size:2rem; color:var(--accent);">{{ total_behavioral }}</div>
+    </div>
+    <div class="card" style="text-align:center;">
+        <h3>High Confidence</h3>
+        <div style="font-size:2rem; color:var(--danger);">{{ high_confidence_count }}</div>
+    </div>
+</section>
+
+<h2 style="margin-top:24px;">Behavior Breakdown</h2>
+<section class="grid">
+    {% for item in behavior_breakdown %}
+    <div class="card">
+        <h3>{{ item.behavior_type }}</h3>
+        <div style="font-size:1.4rem; color:var(--accent);">{{ item.count }}</div>
+    </div>
+    {% empty %}
+    <div class="card"><p class="muted">No behavioral threats detected yet.</p></div>
+    {% endfor %}
+</section>
+
+<h2 style="margin-top:24px;">Recent Behavioral Detections</h2>
+<div class="table-wrapper">
+    <table>
+        <thead><tr><th>Behavior</th><th>Description</th><th>Confidence</th><th>Detected</th></tr></thead>
+        <tbody>
+            {% for b in behavioral_threats %}
+            <tr>
+                <td>{{ b.behavior_type }}</td>
+                <td>{{ b.description|truncatewords:15 }}</td>
+                <td><span style="color:{% if b.confidence >= 80 %}var(--danger){% elif b.confidence >= 50 %}#ffd166{% else %}var(--accent){% endif %};">{{ b.confidence }}%</span></td>
+                <td>{{ b.detected_at|date:"Y-m-d H:i" }}</td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="4" class="muted">No behavioral threats detected.</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

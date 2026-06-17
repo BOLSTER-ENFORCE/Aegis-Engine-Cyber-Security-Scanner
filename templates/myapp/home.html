@@ -1,23 +1,98 @@
 {% extends "base.html" %}
+{% block title %}Aegis Engine | Cyber Security Platform{% endblock %}
 {% block content %}
-<section class="panel">
-    <h1>Aegis Engine</h1>
-    <p>Endpoint detection, system audit, network exposure review, file scanning, risk scoring, reporting, and admin monitoring in one local Django app.</p>
-    <div class="actions">
+<section class="panel" style="text-align:center; padding:40px 24px;">
+    <div style="font-size:3.5rem; margin-bottom:12px;">&#x2694;&#xfe0f;</div>
+    <h1 style="font-size:2.2rem;">Aegis Engine</h1>
+    <p style="max-width:600px; margin:8px auto 24px;">Endpoint detection, threat intelligence, MITRE ATT&CK mapping, file integrity monitoring, behavioral analysis, risk scoring, and executive reporting — all in one local Django platform.</p>
+    <div class="actions" style="justify-content:center;">
         {% if user.is_authenticated %}
-            <a href="{% url 'combined_scan' %}" class="btn btn-primary">Start Combined Scan</a>
-            <a href="{% url 'dashboard' %}" class="btn">Open Dashboard</a>
+            <a href="{% url 'combined_scan' %}" class="btn btn-primary">&#x26a1; Start Combined Scan</a>
+            <a href="{% url 'dashboard' %}" class="btn">&#x1f4ca; Open Dashboard</a>
+            <a href="{% url 'launcher' %}" class="btn">&#x1f680; Launcher</a>
         {% else %}
-            <a href="{% url 'login' %}" class="btn btn-primary">Login</a>
-            <a href="{% url 'register' %}" class="btn">Register</a>
+            <a href="{% url 'login' %}" class="btn btn-primary">&#x1f512; Login</a>
+            <a href="{% url 'register' %}" class="btn">&#x1f6e1; Register</a>
         {% endif %}
     </div>
 </section>
 
+{% if user.is_authenticated %}
 <section class="grid" style="margin-top:16px;">
-    <div class="card"><h3>Collection Layer</h3><p>Asset discovery, hardware profiling, compliance, endpoint protection, users, network exposure, and landing zone files.</p></div>
-    <div class="card"><h3>Analysis Layer</h3><p>Threat hunting, startup audit, local malware heuristics, MITRE mapping, file integrity, and risk scoring.</p></div>
-    <div class="card"><h3>Response Layer</h3><p>Remediation advice, incident-ready results, quarantine guidance, and alert-style recommendations.</p></div>
-    <div class="card"><h3>Reporting Layer</h3><p>Executive report, technical scan result, JSON export, PDF download, audit trail, print, and share options.</p></div>
+    <div class="card" style="text-align:center;">
+        <div style="font-size:2rem;">&#x1f4c8;</div>
+        <h3>Quick Stats</h3>
+        <p>Signed in as <strong style="color:var(--accent);">{{ user.username }}</strong></p>
+        <a href="{% url 'dashboard' %}" class="btn" style="margin-top:8px;">View Dashboard</a>
+    </div>
+    <div class="card" style="text-align:center;">
+        <div style="font-size:2rem;">&#x26a1;</div>
+        <h3>Last Scan</h3>
+        <p>Run a scan to see your endpoint security posture in real time.</p>
+        <a href="{% url 'combined_scan' %}" class="btn" style="margin-top:8px;">Scan Now</a>
+    </div>
+    <div class="card" style="text-align:center;">
+        <div style="font-size:2rem;">&#x1f4d1;</div>
+        <h3>Reports</h3>
+        <p>Download PDF and JSON reports of your security assessment.</p>
+        <a href="{% url 'dashboard' %}" class="btn" style="margin-top:8px;">View Reports</a>
+    </div>
+</section>
+{% endif %}
+
+<h2 style="margin-top:32px;">Platform Architecture</h2>
+<section class="grid">
+    <div class="card">
+        <div style="font-size:1.8rem; margin-bottom:8px;">&#x1f50d;</div>
+        <h3>Collection Layer</h3>
+        <p>Asset discovery, hardware profiling, compliance, endpoint protection, user audit, network exposure, and file scanning.</p>
+    </div>
+    <div class="card">
+        <div style="font-size:1.8rem; margin-bottom:8px;">&#x1f9e0;</div>
+        <h3>Analysis Layer</h3>
+        <p>Threat hunting, process analysis, startup audit, malware heuristics, MITRE mapping, behavioral detection, and risk scoring.</p>
+    </div>
+    <div class="card">
+        <div style="font-size:1.8rem; margin-bottom:8px;">&#x1f6a8;</div>
+        <h3>Response Layer</h3>
+        <p>Incident management, quarantine engine, automated remediation, threat timeline, and forensic analysis.</p>
+    </div>
+    <div class="card">
+        <div style="font-size:1.8rem; margin-bottom:8px;">&#x1f4c4;</div>
+        <h3>Reporting Layer</h3>
+        <p>Executive PDF report, JSON export, threat intelligence feed, audit trail, and compliance dashboard.</p>
+    </div>
+</section>
+
+<h2 style="margin-top:32px;">Module Tiers</h2>
+<section class="grid">
+    <div class="card">
+        <h3 style="color:var(--accent);">Tier 1 — Asset &amp; Exposure</h3>
+        <p>System Profile, Endpoint Fingerprinting, Security Compliance, Endpoint Protection Assessment</p>
+    </div>
+    <div class="card">
+        <h3 style="color:var(--accent);">Tier 2 — Threat Detection</h3>
+        <p>Process Analysis, Persistence Detection, Network Threat Analytics</p>
+    </div>
+    <div class="card">
+        <h3 style="color:var(--accent);">Tier 3 — Malware &amp; Monitoring</h3>
+        <p>Malware Analysis, File Integrity Monitoring, Real-Time Monitoring, USB Monitoring</p>
+    </div>
+    <div class="card">
+        <h3 style="color:var(--accent);">Tier 4 — Intelligence</h3>
+        <p>Threat Intelligence, IOC Correlation, Threat Database</p>
+    </div>
+    <div class="card">
+        <h3 style="color:var(--accent);">Tier 5 — Behavioral Analytics</h3>
+        <p>Behavioral Detection, MITRE ATT&CK Correlation</p>
+    </div>
+    <div class="card">
+        <h3 style="color:var(--accent);">Tier 6 — Incident Response</h3>
+        <p>Quarantine, Automated Response, Incident Management</p>
+    </div>
+    <div class="card">
+        <h3 style="color:var(--accent);">Tier 7 — Analytics &amp; Reporting</h3>
+        <p>Risk Scoring, Threat Timeline, Executive Reporting</p>
+    </div>
 </section>
 {% endblock %}

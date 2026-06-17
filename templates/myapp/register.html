@@ -1,12 +1,104 @@
 {% extends "base.html" %}
+{% block title %}Register | Aegis Engine{% endblock %}
 {% block content %}
-<h2>Register</h2>
-<form method="post">
-  {% csrf_token %}
-  <label>Username:</label><input type="text" name="username"><br>
-  <label>Email:</label><input type="email" name="email"><br>
-  <label>Password:</label><input type="password" name="password"><br>
-  <label>Confirm password:</label><input type="password" name="confirm_password"><br>
-  <button type="submit">Register</button>
-</form>
+<div style="max-width:440px; margin:40px auto;">
+    <div class="panel" style="text-align:center;">
+        <div style="font-size:3rem; margin-bottom:8px;">&#x1f6e1;</div>
+        <h1>Create Account</h1>
+        <p class="muted">Register for an Aegis Engine security account</p>
+    </div>
+
+    <form method="post" id="registerForm" style="margin-top:16px;">
+        {% csrf_token %}
+
+        <label for="username">Username</label>
+        <input type="text" id="username" name="username" placeholder="Choose a username" required autofocus>
+        <small id="userFeedback" style="color:var(--muted); font-size:12px;"></small>
+
+        <label for="email">Email</label>
+        <input type="email" id="email" name="email" placeholder="your@email.com" required>
+        <small id="emailFeedback" style="color:var(--muted); font-size:12px;"></small>
+
+        <label for="password">Password</label>
+        <div style="position:relative;">
+            <input type="password" id="password" name="password" placeholder="Create password" required>
+            <button type="button" data-toggle-password="#password"
+                    style="position:absolute; right:8px; top:50%; transform:translateY(-50%);
+                           min-height:28px; padding:2px 8px; font-size:12px;">Show</button>
+        </div>
+        <div id="strengthMeter" style="height:6px; border-radius:3px; background:var(--panel-soft); margin-top:4px; overflow:hidden;">
+            <div id="strengthBar" style="height:100%; width:0; border-radius:3px; transition:all 0.3s;"></div>
+        </div>
+        <small id="strengthLabel" style="font-size:12px; color:var(--muted);"></small>
+
+        <label for="confirm_password">Confirm Password</label>
+        <div style="position:relative;">
+            <input type="password" id="confirm_password" name="confirm_password" placeholder="Re-enter password" required>
+            <button type="button" data-toggle-password="#confirm_password"
+                    style="position:absolute; right:8px; top:50%; transform:translateY(-50%);
+                           min-height:28px; padding:2px 8px; font-size:12px;">Show</button>
+        </div>
+        <small id="matchFeedback" style="font-size:12px; color:var(--muted);"></small>
+
+        <button type="submit" id="registerBtn">Register</button>
+
+        <div style="text-align:center; margin-top:8px;">
+            <a href="{% url 'login' %}" style="font-size:13px; color:var(--accent-2);">Already have an account? Login</a>
+        </div>
+    </form>
+</div>
+
+<script>
+(function() {
+    const pw = document.getElementById("password");
+    const pw2 = document.getElementById("confirm_password");
+    const bar = document.getElementById("strengthBar");
+    const label = document.getElementById("strengthLabel");
+    const matchFb = document.getElementById("matchFeedback");
+    const userFb = document.getElementById("userFeedback");
+    const emailFb = document.getElementById("emailFeedback");
+
+    pw.addEventListener("input", function() {
+        const v = pw.value;
+        let score = 0;
+        if (v.length >= 8) score++;
+        if (v.length >= 12) score++;
+        if (/[a-z]/.test(v) && /[A-Z]/.test(v)) score++;
+        if (/\d/.test(v)) score++;
+        if (/[^A-Za-z0-9]/.test(v)) score++;
+        const pct = Math.min(score / 5 * 100, 100);
+        const colors = ["#ff6b6b", "#ff6b6b", "#ffd166", "#ffd166", "#20c997", "#20c997"];
+        const labels = ["", "Weak", "Weak", "Fair", "Strong", "Very Strong"];
+        bar.style.width = pct + "%";
+        bar.style.background = colors[score];
+        label.textContent = labels[score];
+        label.style.color = colors[score];
+        checkMatch();
+    });
+
+    function checkMatch() {
+        if (!pw2.value) { matchFb.textContent = ""; return; }
+        if (pw.value === pw2.value) {
+            matchFb.textContent = "Passwords match";
+            matchFb.style.color = "var(--accent)";
+        } else {
+            matchFb.textContent = "Passwords do not match";
+            matchFb.style.color = "var(--danger)";
+        }
+    }
+    pw2.addEventListener("input", checkMatch);
+
+    document.getElementById("username").addEventListener("input", function() {
+        const v = this.value.trim();
+        if (v.length < 3) { userFb.textContent = "At least 3 characters"; userFb.style.color = "var(--danger)"; }
+        else { userFb.textContent = ""; }
+    });
+
+    document.getElementById("email").addEventListener("input", function() {
+        const v = this.value.trim();
+        if (v && !v.includes("@")) { emailFb.textContent = "Enter a valid email"; emailFb.style.color = "var(--danger)"; }
+        else { emailFb.textContent = ""; }
+    });
+})();
+</script>
 {% endblock %}

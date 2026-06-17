@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+{% block title %}Forensic Analysis | Aegis Engine{% endblock %}
+{% block content %}
+<h1>&#x1f52c; Forensic Analysis</h1>
+
+<section class="grid">
+    <div class="card" style="text-align:center;">
+        <h3>Total Snapshots</h3>
+        <div style="font-size:2rem; color:var(--accent);">{{ total_snapshots }}</div>
+    </div>
+    <div class="card" style="text-align:center;">
+        <h3>Total Actions</h3>
+        <div style="font-size:2rem; color:var(--accent-2);">{{ total_actions }}</div>
+    </div>
+</section>
+
+<h2 style="margin-top:24px;">Recent Forensic Snapshots</h2>
+<div class="table-wrapper">
+    <table>
+        <thead><tr><th>Snapshot ID</th><th>Trigger</th><th>Processes</th><th>Connections</th><th>Created</th></tr></thead>
+        <tbody>
+            {% for s in recent_snapshots %}
+            <tr>
+                <td><a href="{% url 'advanced:forensic_snapshot' s.snapshot_id %}">{{ s.snapshot_id|truncatechars:16 }}</a></td>
+                <td>{{ s.trigger_event|truncatewords:8 }}</td>
+                <td>{{ s.process_count }}</td>
+                <td>{{ s.network_connections_count }}</td>
+                <td>{{ s.created_at|date:"Y-m-d H:i" }}</td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="5" class="muted">No forensic snapshots recorded.</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<h2 style="margin-top:24px;">Remediation Actions</h2>
+<div class="table-wrapper">
+    <table>
+        <thead><tr><th>Action Type</th><th>Target</th><th>Status</th><th>Result</th><th>Performed</th></tr></thead>
+        <tbody>
+            {% for a in recent_actions %}
+            <tr>
+                <td>{{ a.action_type }}</td>
+                <td>{{ a.target|truncatewords:8 }}</td>
+                <td><span class="badge badge-{{ a.status|lower }}">{{ a.status }}</span></td>
+                <td>{{ a.result|truncatewords:8 }}</td>
+                <td>{{ a.performed_at|date:"Y-m-d H:i" }}</td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="5" class="muted">No remediation actions recorded.</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

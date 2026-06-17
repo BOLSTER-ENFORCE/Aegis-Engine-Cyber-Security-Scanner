@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block title %}IP Reputation: {{ ip_data.ip_address }} | Aegis Engine{% endblock %}
+{% block content %}
+<h1>&#x1f4e1; IP Reputation Detail</h1>
+
+<section class="grid">
+    <div class="card" style="grid-column: span 2;">
+        <h3>{{ ip_data.ip_address }}</h3>
+        <table>
+            <tr><td class="muted">Verdict</td><td><span class="badge badge-{{ ip_data.verdict|lower }}">{{ ip_data.verdict }}</span></td></tr>
+            <tr><td class="muted">Country</td><td>{{ ip_data.country|default:"-" }}</td></tr>
+            <tr><td class="muted">City</td><td>{{ ip_data.city|default:"-" }}</td></tr>
+            <tr><td class="muted">ASN</td><td>{{ ip_data.asn|default:"-" }}</td></tr>
+            <tr><td class="muted">ISP</td><td>{{ ip_data.isp|default:"-" }}</td></tr>
+            <tr><td class="muted">Abuse Score</td><td>{{ ip_data.abuse_score }}</td></tr>
+            <tr><td class="muted">Reports Count</td><td>{{ ip_data.reports_count }}</td></tr>
+            <tr><td class="muted">Last Checked</td><td>{{ ip_data.last_checked|date:"Y-m-d H:i" }}</td></tr>
+        </table>
+    </div>
+</section>
+
+<a href="{% url 'advanced:network_threat_intel' %}" class="btn" style="margin-top:16px;">Back to Network Threat Intel</a>
+{% endblock %}

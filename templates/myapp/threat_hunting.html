@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+{% block title %}Threat Hunting | Aegis Engine{% endblock %}
+{% block content %}
+<h1>&#x1f3af; Threat Hunting</h1>
+
+<section class="grid">
+    <div class="card" style="text-align:center;">
+        <h3>Total IOCs</h3>
+        <div style="font-size:2rem; color:var(--accent);">{{ total_iocs }}</div>
+    </div>
+    <div class="card" style="text-align:center;">
+        <h3>Matched Threats</h3>
+        <div style="font-size:2rem; color:var(--danger);">{{ total_matches }}</div>
+    </div>
+    <div class="card" style="text-align:center;">
+        <h3>Active IOCs</h3>
+        <div style="font-size:2rem; color:#ffd166;">{{ active_iocs }}</div>
+    </div>
+</section>
+
+<h2 style="margin-top:24px;">IOC Type Distribution</h2>
+<section class="grid">
+    {% for item in ioc_type_distribution %}
+    <div class="card">
+        <h3>{{ item.ioc_type }}</h3>
+        <div style="font-size:1.4rem; color:var(--accent);">{{ item.count }}</div>
+    </div>
+    {% empty %}
+    <div class="card"><p class="muted">No IOCs in database yet.</p></div>
+    {% endfor %}
+</section>
+
+<h2 style="margin-top:24px;">Recent Threat Matches</h2>
+<div class="table-wrapper">
+    <table>
+        <thead><tr><th>IOC Value</th><th>Type</th><th>Source</th><th>Confidence</th><th>Matched</th></tr></thead>
+        <tbody>
+            {% for m in recent_matches %}
+            <tr>
+                <td style="font-family:monospace; font-size:12px;">{{ m.matched_value|truncatechars:40 }}</td>
+                <td>{{ m.match_type }}</td>
+                <td>{{ m.source }}</td>
+                <td>{{ m.confidence }}%</td>
+                <td>{{ m.matched_at|date:"Y-m-d H:i" }}</td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="5" class="muted">No threat matches found yet.</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<h2 style="margin-top:24px;">Recent IOCs</h2>
+<div class="table-wrapper">
+    <table>
+        <thead><tr><th>Value</th><th>Type</th><th>Source</th><th>Severity</th><th>Active</th><th>Added</th></tr></thead>
+        <tbody>
+            {% for ioc in recent_iocs %}
+            <tr>
+                <td style="font-family:monospace; font-size:12px;">{{ ioc.value|truncatechars:40 }}</td>
+                <td>{{ ioc.ioc_type }}</td>
+                <td>{{ ioc.source }}</td>
+                <td><span class="badge badge-{{ ioc.severity|lower }}">{{ ioc.severity }}</span></td>
+                <td>{% if ioc.is_active %}<span style="color:var(--accent);">Yes</span>{% else %}<span class="muted">No</span>{% endif %}</td>
+                <td>{{ ioc.created_at|date:"Y-m-d H:i" }}</td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="6" class="muted">No IOCs recorded.</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

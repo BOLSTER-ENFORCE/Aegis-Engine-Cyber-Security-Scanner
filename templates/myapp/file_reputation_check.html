@@ -1,0 +1,62 @@
+{% extends "base.html" %}
+{% block title %}File Reputation Check | Aegis Engine{% endblock %}
+{% block content %}
+<div style="max-width:600px; margin:20px auto;">
+    <h1>&#x1f50d; File Reputation Check</h1>
+    <p class="muted">Enter a SHA256 hash to check file reputation against the threat database.</p>
+
+    <form id="repForm" style="margin-top:16px;">
+        {% csrf_token %}
+        <label for="sha256">SHA256 Hash</label>
+        <input type="text" id="sha256" name="sha256" placeholder="Enter 64-character SHA256 hash" maxlength="64"
+               pattern="[A-Fa-f0-9]{64}" style="font-family:monospace;" required>
+        <button type="submit" id="checkBtn">Check Reputation</button>
+    </form>
+
+    <div id="result" style="display:none; margin-top:16px;" class="panel"></div>
+</div>
+
+<script>
+document.getElementById("repForm").addEventListener("submit", function(e) {
+    e.preventDefault();
+    const sha = document.getElementById("sha256").value.trim();
+    const btn = document.getElementById("checkBtn");
+    const res = document.getElementById("result");
+    btn.disabled = true;
+    btn.textContent = "Checking...";
+    res.style.display = "none";
+
+    fetch("{% url 'advanced:file_reputation_check' %}", {
+        method: "POST",
+        headers: {"Content-Type": "application/x-www-form-urlencoded", "X-CSRFToken": "{{ csrf_token }}"},
+        body: "sha256=" + encodeURIComponent(sha)
+    })
+    .then(r => r.json())
+    .then(data => {
+        btn.disabled = false;
+        btn.textContent = "Check Reputation";
+        res.style.display = "block";
+        if (data.success && data.data) {
+            const d = data.data;
+            const color = d.verdict === "MALICIOUS" ? "var(--danger)" : d.verdict === "SUSPICIOUS" ? "#ffd166" : d.verdict === "CLEAN" ? "var(--accent)" : "var(--muted)";
+            res.innerHTML = '<h3>Result</h3>' +
+                '<table>' +
+                '<tr><td class="muted">SHA256</td><td style="font-family:monospace; word-break:break-all;">' + d.sha256 + '</td></tr>' +
+                '<tr><td class="muted">Verdict</td><td style="color:' + color + '; font-weight:700;">' + d.verdict + '</td></tr>' +
+                (d.vt_detections !== undefined ? '<tr><td class="muted">VT Detections</td><td>' + d.vt_detections + '</td></tr>' : '') +
+                (d.ratio ? '<tr><td class="muted">Detection Ratio</td><td>' + d.ratio + '</td></tr>' : '') +
+                (d.message ? '<tr><td class="muted">Note</td><td>' + d.message + '</td></tr>' : '') +
+                '</table>';
+        } else {
+            res.innerHTML = '<p style="color:var(--danger);">' + (data.error || "Unknown error") + '</p>';
+        }
+    })
+    .catch(() => {
+        btn.disabled = false;
+        btn.textContent = "Check Reputation";
+        res.style.display = "block";
+        res.innerHTML = '<p style="color:var(--danger);">Request failed. Please try again.</p>';
+    });
+});
+</script>
+{% endblock %}

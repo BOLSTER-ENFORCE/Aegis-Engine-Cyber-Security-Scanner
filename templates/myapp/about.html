@@ -1,7 +1,45 @@
 {% extends "base.html" %}
+{% block title %}About | Aegis Engine{% endblock %}
 {% block content %}
-<section class="panel">
+<section class="panel" style="text-align:center; padding:40px 24px;">
+    <div style="font-size:3.5rem; margin-bottom:12px;">&#x2694;&#xfe0f;</div>
     <h1>About Aegis Engine</h1>
-    <p>Aegis Engine is a local cybersecurity scanner for learning, auditing, and reporting. It combines system, process, startup, network, file, threat-intelligence style, MITRE, response, and reporting modules into a single workflow.</p>
+    <p style="max-width:600px; margin:8px auto;">Aegis Engine is a local cybersecurity scanner and EDR platform for learning, auditing, and reporting. It combines system, process, startup, network, file, threat-intelligence, MITRE ATT&CK, incident response, and reporting modules into a single Django workflow.</p>
+</section>
+
+<h2 style="margin-top:24px;">Architecture</h2>
+<section class="grid">
+    <div class="card">
+        <h3>&#x1f50d; Collection</h3>
+        <p>Asset discovery, hardware fingerprinting, compliance checks, endpoint protection assessment, user audit trail, network exposure analysis.</p>
+    </div>
+    <div class="card">
+        <h3>&#x1f9e0; Analysis</h3>
+        <p>Process analysis, startup item audit, malware signature matching, file reputation, MITRE ATT&CK mapping, behavioral detection, risk scoring.</p>
+    </div>
+    <div class="card">
+        <h3>&#x1f6a8; Response</h3>
+        <p>Incident management, quarantine engine, automated remediation, forensic snapshots, kill chain analysis, threat timeline.</p>
+    </div>
+    <div class="card">
+        <h3>&#x1f4c4; Reporting</h3>
+        <p>Executive PDF reports, JSON export, real-time dashboard, threat intelligence feed, compliance dashboard, risk metrics.</p>
+    </div>
+</section>
+
+<h2 style="margin-top:24px;">Technology Stack</h2>
+<section class="grid">
+    <div class="card">
+        <h3>Backend</h3>
+        <p>Django, Python, psutil, watchdog, reportlab</p>
+    </div>
+    <div class="card">
+        <h3>Frontend</h3>
+        <p>Bootstrap 5, Tailwind CSS, Chart.js, custom dark neon theme</p>
+    </div>
+    <div class="card">
+        <h3>Security</h3>
+        <p>22 integrated security modules, real-time monitoring, IOC correlation, MITRE framework</p>
+    </div>
 </section>
 {% endblock %}

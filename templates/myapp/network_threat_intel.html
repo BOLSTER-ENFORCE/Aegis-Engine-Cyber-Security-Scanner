@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+{% block title %}Network Threat Intelligence | Aegis Engine{% endblock %}
+{% block content %}
+<h1>&#x1f4e1; Network Threat Intelligence</h1>
+
+<section class="grid">
+    <div class="card" style="text-align:center;">
+        <h3>Malicious IPs</h3>
+        <div style="font-size:2rem; color:var(--danger);">{{ malicious_ips }}</div>
+    </div>
+    <div class="card" style="text-align:center;">
+        <h3>Malicious Domains</h3>
+        <div style="font-size:2rem; color:var(--danger);">{{ malicious_domains }}</div>
+    </div>
+    <div class="card" style="text-align:center;">
+        <h3>Total IP Records</h3>
+        <div style="font-size:2rem; color:var(--accent);">{{ total_ips }}</div>
+    </div>
+    <div class="card" style="text-align:center;">
+        <h3>Total Domains</h3>
+        <div style="font-size:2rem; color:var(--accent);">{{ total_domains }}</div>
+    </div>
+</section>
+
+<h2 style="margin-top:24px;">Recent Suspicious IPs</h2>
+<div class="table-wrapper">
+    <table>
+        <thead><tr><th>IP Address</th><th>Verdict</th><th>Country</th><th>ASN</th><th>Abuse Score</th><th>Last Checked</th></tr></thead>
+        <tbody>
+            {% for ip in recent_ips %}
+            <tr>
+                <td><a href="{% url 'advanced:ip_reputation' ip.ip_address %}">{{ ip.ip_address }}</a></td>
+                <td><span class="badge badge-{{ ip.verdict|lower }}">{{ ip.verdict }}</span></td>
+                <td>{{ ip.country|default:"-" }}</td>
+                <td>{{ ip.asn|default:"-" }}</td>
+                <td>{{ ip.abuse_score }}</td>
+                <td>{{ ip.last_checked|date:"Y-m-d H:i" }}</td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="6" class="muted">No IP reputation data yet.</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<h2 style="margin-top:24px;">Recent Suspicious Domains</h2>
+<div class="table-wrapper">
+    <table>
+        <thead><tr><th>Domain</th><th>Verdict</th><th>Category</th><th>Risk Score</th><th>Last Checked</th></tr></thead>
+        <tbody>
+            {% for d in recent_domains %}
+            <tr>
+                <td><a href="{% url 'advanced:domain_reputation' d.domain %}">{{ d.domain }}</a></td>
+                <td><span class="badge badge-{{ d.verdict|lower }}">{{ d.verdict }}</span></td>
+                <td>{{ d.category|default:"-" }}</td>
+                <td>{{ d.risk_score }}</td>
+                <td>{{ d.last_checked|date:"Y-m-d H:i" }}</td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="5" class="muted">No domain reputation data yet.</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

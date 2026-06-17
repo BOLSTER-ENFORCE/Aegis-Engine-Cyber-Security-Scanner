@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% block title %}Forensic Snapshot {{ snapshot.snapshot_id }} | Aegis Engine{% endblock %}
+{% block content %}
+<h1>&#x1f52c; Forensic Snapshot</h1>
+
+<div class="panel">
+    <h2>{{ snapshot.snapshot_id }}</h2>
+    <table>
+        <tr><td class="muted">Trigger</td><td>{{ snapshot.trigger_event }}</td></tr>
+        <tr><td class="muted">Processes Captured</td><td>{{ snapshot.process_count }}</td></tr>
+        <tr><td class="muted">Network Connections</td><td>{{ snapshot.network_connections_count }}</td></tr>
+        <tr><td class="muted">Open Files</td><td>{{ snapshot.open_files_count }}</td></tr>
+        <tr><td class="muted">Created</td><td>{{ snapshot.created_at|date:"Y-m-d H:i:s" }}</td></tr>
+    </table>
+</div>
+
+<h2 style="margin-top:24px;">Process List</h2>
+<div class="table-wrapper">
+    <table>
+        <thead><tr><th>PID</th><th>Name</th><th>User</th><th>CPU%</th><th>Memory%</th></tr></thead>
+        <tbody>
+            {% for p in snapshot.process_list %}
+            <tr>
+                <td>{{ p.pid }}</td>
+                <td>{{ p.name }}</td>
+                <td>{{ p.user|default:"-" }}</td>
+                <td>{{ p.cpu|default:"-" }}</td>
+                <td>{{ p.memory|default:"-" }}</td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="5" class="muted">No process data.</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<a href="{% url 'advanced:forensic_analysis' %}" class="btn" style="margin-top:16px;">Back to Forensic Analysis</a>
+{% endblock %}
