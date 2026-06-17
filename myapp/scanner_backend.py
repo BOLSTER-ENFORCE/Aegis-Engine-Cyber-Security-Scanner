@@ -1,6 +1,7 @@
 import os
 import sys
 import ctypes
+import logging
 import platform
 import subprocess
 import time
@@ -11,6 +12,8 @@ import re
 from datetime import datetime, timedelta
 import psutil
 
+logger = logging.getLogger(__name__)
+
 # ======================================================================
 # ⚙️ AEGIS SCANNING ENGINE - BACKEND UTILITIES
 # ======================================================================
@@ -18,7 +21,10 @@ import psutil
 def is_admin():
     try:
         return ctypes.windll.shell32.IsUserAnAdmin()
-    except Exception:
+    except AttributeError:
+        return False
+    except OSError:
+        logger.warning("OS error checking admin status", exc_info=True)
         return False
 
 def get_uptime():
@@ -33,7 +39,8 @@ def get_uptime():
         if hours > 0: uptime_str += f"{int(hours)}h "
         uptime_str += f"{int(minutes)}m"
         return uptime_str
-    except Exception:
+    except (OSError, psutil.Error) as exc:
+        logger.warning("Failed to retrieve system uptime: %s", exc)
         return "Unknown"
 
 def get_external_ip():
@@ -42,7 +49,8 @@ def get_external_ip():
         with urllib.request.urlopen("https://api.ipify.org?format=json", timeout=3) as response:
             data = json.loads(response.read().decode())
             return data.get("ip", "Offline")
-    except Exception:
+    except (OSError, ValueError) as exc:
+        logger.info("External IP lookup unavailable: %s", exc)
         return "Offline / Unavailable"
 
 def profile_system_details():
@@ -80,8 +88,8 @@ def profile_system_details():
                 })
             except (PermissionError, FileNotFoundError):
                 continue
-    except Exception:
-        pass
+    except (OSError, psutil.Error) as exc:
+        logger.warning("Failed to enumerate disk partitions: %s", exc)
     try:
         addrs = psutil.net_if_addrs()
         stats = psutil.net_if_stats()
@@ -101,8 +109,8 @@ def profile_system_details():
                     "ip": ip_address,
                     "mac": mac_address
                 })
-    except Exception:
-        pass
+    except (OSError, psutil.Error) as exc:
+        logger.warning("Failed to enumerate network adapters: %s", exc)
     return details
 
 def run_powershell_cmd(cmd, timeout=4):
@@ -112,7 +120,13 @@ def run_powershell_cmd(cmd, timeout=4):
             capture_output=True, text=True, check=True, timeout=timeout
         )
         return result.stdout.strip()
-    except Exception:
+    except FileNotFoundError:
+        return ""
+    except subprocess.TimeoutExpired:
+        logger.warning("PowerShell command timed out after %ds: %s", timeout, cmd)
+        return ""
+    except subprocess.CalledProcessError as exc:
+        logger.warning("PowerShell command failed (rc=%s): %s", exc.returncode, cmd)
         return ""
 
 # --- Extended Hardware Specs ---
@@ -140,8 +154,8 @@ def get_extended_hardware_specs():
                 "power_plugged": battery.power_plugged,
                 "secsleft": battery.secsleft
             }
-    except Exception:
-        pass
+    except (OSError, psutil.Error) as exc:
+        logger.debug("Battery info unavailable: %s", exc)
 
     # CPU frequency and per-core usage
     try:
@@ -153,8 +167,8 @@ def get_extended_hardware_specs():
                 "max": round(freq.max, 2)
             }
         specs["cpu_per_core"] = psutil.cpu_percent(percpu=True)
-    except Exception:
-        pass
+    except (OSError, psutil.Error) as exc:
+        logger.debug("CPU frequency info unavailable: %s", exc)
 
     # Swap memory
     try:
@@ -165,8 +179,8 @@ def get_extended_hardware_specs():
             "free_gb": round(swap.free / (1024**3), 2),
             "used_pct": swap.percent
         }
-    except Exception:
-        pass
+    except (OSError, psutil.Error) as exc:
+        logger.debug("Swap memory info unavailable: %s", exc)
 
     # Disk IO
     try:
@@ -176,8 +190,8 @@ def get_extended_hardware_specs():
                 "read_mb": round(disk_io.read_bytes / (1024**2), 2),
                 "write_mb": round(disk_io.write_bytes / (1024**2), 2)
             }
-    except Exception:
-        pass
+    except (OSError, psutil.Error) as exc:
+        logger.debug("Disk IO info unavailable: %s", exc)
 
     # Network IO
     try:
@@ -187,8 +201,8 @@ def get_extended_hardware_specs():
                 "sent_mb": round(net_io.bytes_sent / (1024**2), 2),
                 "recv_mb": round(net_io.bytes_recv / (1024**2), 2)
             }
-    except Exception:
-        pass
+    except (OSError, psutil.Error) as exc:
+        logger.debug("Network IO info unavailable: %s", exc)
 
     # GPU, Motherboard, BIOS (Windows only)
     if platform.system() == "Windows":
@@ -202,8 +216,8 @@ def get_extended_hardware_specs():
                         "name": g.get("Name", "Unknown GPU"),
                         "vram_gb": round(g.get("AdapterRAM", 0) / (1024**3), 2) if g.get("AdapterRAM") else "Unknown"
                     })
-        except Exception:
-            pass
+        except (json.JSONDecodeError, TypeError, KeyError) as exc:
+            logger.debug("GPU info unavailable: %s", exc)
 
         try:
             mb_data = run_powershell_cmd("Get-CimInstance Win32_BaseBoard | Select-Object Manufacturer, Product | ConvertTo-Json")
@@ -213,8 +227,8 @@ def get_extended_hardware_specs():
                     "manufacturer": parsed.get("Manufacturer", "Unknown"),
                     "product": parsed.get("Product", "Unknown")
                 }
-        except Exception:
-            pass
+        except (json.JSONDecodeError, TypeError, KeyError) as exc:
+            logger.debug("Motherboard info unavailable: %s", exc)
 
         try:
             bios_data = run_powershell_cmd("Get-CimInstance Win32_BIOS | Select-Object Manufacturer, Name, Version | ConvertTo-Json")
@@ -225,7 +239,7 @@ def get_extended_hardware_specs():
                     "name": parsed.get("Name", "Unknown"),
                     "version": parsed.get("Version", "Unknown")
                 }
-        except Exception:
-            pass
+        except (json.JSONDecodeError, TypeError, KeyError) as exc:
+            logger.debug("BIOS info unavailable: %s", exc)
 
     return specs
