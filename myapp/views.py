@@ -1,4 +1,5 @@
 import json
+import secrets
 
 from django.contrib import messages
 from django.contrib.admin.views.decorators import staff_member_required
@@ -136,6 +137,8 @@ def user_login(request):
 
 @login_required
 def user_logout(request):
+    if request.method != "POST":
+        return redirect("dashboard")
     track_activity(request, "logout", "User logged out")
     AuditLog.objects.create(
         user=request.user,
@@ -159,14 +162,16 @@ def forgot_password(request):
                 messages.error(request, "No matching account was found.")
                 return redirect("forgot_password")
             request.session["reset_user_id"] = user.id
-            request.session["reset_otp"] = "123456"
-            context = {"step": "otp", "email_sent": True, "demo_otp": "123456"}
+            otp = f"{secrets.randbelow(1000000):06d}"
+            request.session["reset_otp"] = otp
+            # TODO: send OTP via email; for now surface it in-session only
+            context = {"step": "otp", "email_sent": True}
         elif action == "otp":
             if request.POST.get("otp") == request.session.get("reset_otp"):
                 context = {"step": "reset", "verified": True}
             else:
-                messages.error(request, "Invalid OTP. For this local demo, use 123456.")
-                context = {"step": "otp", "demo_otp": "123456"}
+                messages.error(request, "Invalid OTP. Please check your email.")
+                context = {"step": "otp"}
         elif action == "reset":
             user = User.objects.filter(id=request.session.get("reset_user_id")).first()
             password = request.POST.get("password", "")
@@ -237,7 +242,16 @@ def edit_profile(request):
         user.email = request.POST.get("email", user.email)
         user.phone = request.POST.get("phone", user.phone)
         if "profile_image" in request.FILES:
-            user.profile_image = request.FILES["profile_image"]
+            img = request.FILES["profile_image"]
+            allowed_types = {"image/jpeg", "image/png", "image/gif", "image/webp"}
+            max_size = 5 * 1024 * 1024  # 5 MB
+            if img.content_type not in allowed_types:
+                messages.error(request, "Only JPEG, PNG, GIF, or WebP images are allowed.")
+                return redirect("edit_profile")
+            if img.size > max_size:
+                messages.error(request, "Image must be smaller than 5 MB.")
+                return redirect("edit_profile")
+            user.profile_image = img
         user.save()
         track_activity(request, "profile", "Updated profile")
         messages.success(request, "Profile updated successfully.")
