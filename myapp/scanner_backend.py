@@ -11,6 +11,8 @@ import re
 from datetime import datetime, timedelta
 import psutil
 
+from .utils import base_system_info, bytes_to_gb, bytes_to_mb
+
 # ======================================================================
 # ⚙️ AEGIS SCANNING ENGINE - BACKEND UTILITIES
 # ======================================================================
@@ -46,19 +48,21 @@ def get_external_ip():
         return "Offline / Unavailable"
 
 def profile_system_details():
+    info = base_system_info()
+    mem = psutil.virtual_memory()
     details = {
-        "hostname": socket.gethostname(),
-        "os_name": platform.system(),
-        "os_version": platform.version(),
+        "hostname": info["hostname"],
+        "os_name": info["os_name"],
+        "os_version": info["os_version"],
         "os_release": platform.release(),
-        "os_arch": platform.machine(),
-        "cpu_model": platform.processor() or "Unknown CPU",
+        "os_arch": info["machine"],
+        "cpu_model": info["processor"] or "Unknown CPU",
         "cpu_physical_cores": psutil.cpu_count(logical=False) or 0,
         "cpu_logical_cores": psutil.cpu_count(logical=True) or 0,
         "cpu_usage_pct": psutil.cpu_percent(interval=0.1),
-        "ram_total_gb": round(psutil.virtual_memory().total / (1024**3), 2),
-        "ram_used_gb": round(psutil.virtual_memory().used / (1024**3), 2),
-        "ram_used_pct": psutil.virtual_memory().percent,
+        "ram_total_gb": info["ram_total_gb"],
+        "ram_used_gb": bytes_to_gb(mem.used),
+        "ram_used_pct": mem.percent,
         "uptime": get_uptime(),
         "external_ip": get_external_ip(),
         "disks": [],
@@ -74,8 +78,8 @@ def profile_system_details():
                     "device": part.device,
                     "mountpoint": part.mountpoint,
                     "fstype": part.fstype,
-                    "total_gb": round(usage.total / (1024**3), 2),
-                    "used_gb": round(usage.used / (1024**3), 2),
+                    "total_gb": bytes_to_gb(usage.total),
+                    "used_gb": bytes_to_gb(usage.used),
                     "used_pct": usage.percent
                 })
             except (PermissionError, FileNotFoundError):
@@ -160,9 +164,9 @@ def get_extended_hardware_specs():
     try:
         swap = psutil.swap_memory()
         specs["swap_memory"] = {
-            "total_gb": round(swap.total / (1024**3), 2),
-            "used_gb": round(swap.used / (1024**3), 2),
-            "free_gb": round(swap.free / (1024**3), 2),
+            "total_gb": bytes_to_gb(swap.total),
+            "used_gb": bytes_to_gb(swap.used),
+            "free_gb": bytes_to_gb(swap.free),
             "used_pct": swap.percent
         }
     except Exception:
@@ -173,8 +177,8 @@ def get_extended_hardware_specs():
         disk_io = psutil.disk_io_counters()
         if disk_io:
             specs["disk_io"] = {
-                "read_mb": round(disk_io.read_bytes / (1024**2), 2),
-                "write_mb": round(disk_io.write_bytes / (1024**2), 2)
+                "read_mb": bytes_to_mb(disk_io.read_bytes),
+                "write_mb": bytes_to_mb(disk_io.write_bytes)
             }
     except Exception:
         pass
@@ -184,8 +188,8 @@ def get_extended_hardware_specs():
         net_io = psutil.net_io_counters()
         if net_io:
             specs["net_io"] = {
-                "sent_mb": round(net_io.bytes_sent / (1024**2), 2),
-                "recv_mb": round(net_io.bytes_recv / (1024**2), 2)
+                "sent_mb": bytes_to_mb(net_io.bytes_sent),
+                "recv_mb": bytes_to_mb(net_io.bytes_recv)
             }
     except Exception:
         pass
@@ -200,7 +204,7 @@ def get_extended_hardware_specs():
                 for g in gpus:
                     specs["gpu"].append({
                         "name": g.get("Name", "Unknown GPU"),
-                        "vram_gb": round(g.get("AdapterRAM", 0) / (1024**3), 2) if g.get("AdapterRAM") else "Unknown"
+                        "vram_gb": bytes_to_gb(g["AdapterRAM"]) if g.get("AdapterRAM") else "Unknown"
                     })
         except Exception:
             pass

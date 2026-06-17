@@ -8,6 +8,8 @@ from pathlib import Path
 
 import psutil
 
+from .utils import base_system_info, bytes_to_gb, security_score_to_level
+
 
 COMMON_PORTS = {
     20: ("FTP data", "File transfer channel. Risky when exposed without encryption.", "high"),
@@ -90,16 +92,6 @@ TEXT_EXTENSIONS = {
 }
 
 
-def _risk_level(score):
-    if score >= 85:
-        return "LOW"
-    if score >= 70:
-        return "MEDIUM"
-    if score >= 45:
-        return "HIGH"
-    return "CRITICAL"
-
-
 def _sha256(path):
     digest = hashlib.sha256()
     try:
@@ -112,25 +104,21 @@ def _sha256(path):
 
 
 def profile_system():
+    info = base_system_info()
     memory = psutil.virtual_memory()
     disk = psutil.disk_usage(str(Path.home().anchor or "C:\\"))
-    return {
-        "hostname": socket.gethostname(),
+    info.update({
         "ip_address": _local_ip(),
         "mac_address": ":".join(f"{(uuid.getnode() >> bits) & 0xff:02x}" for bits in range(40, -1, -8)),
-        "os_name": platform.system(),
-        "os_version": platform.version(),
-        "machine": platform.machine(),
-        "processor": platform.processor(),
         "cpu_count": psutil.cpu_count(),
-        "ram_total_gb": round(memory.total / (1024 ** 3), 2),
-        "ram_available_gb": round(memory.available / (1024 ** 3), 2),
-        "disk_total_gb": round(disk.total / (1024 ** 3), 2),
-        "disk_free_gb": round(disk.free / (1024 ** 3), 2),
+        "ram_available_gb": bytes_to_gb(memory.available),
+        "disk_total_gb": bytes_to_gb(disk.total),
+        "disk_free_gb": bytes_to_gb(disk.free),
         "endpoint_fingerprint": hashlib.sha256(
             f"{platform.node()}-{platform.processor()}-{platform.machine()}-{uuid.getnode()}".encode()
         ).hexdigest(),
-    }
+    })
+    return info
 
 
 def _local_ip():
@@ -506,7 +494,7 @@ def run_combined_scan(user=None, scan_type="combined"):
     risk_points += sum(RISK_WEIGHT.get(item["risk"], 3) for item in behavioral)
     risk_points += len(threat_db) * 10
     score = max(0, 100 - min(risk_points, 100))
-    risk = _risk_level(score)
+    risk = security_score_to_level(score)
 
     return {
         "scan_type": scan_type,
