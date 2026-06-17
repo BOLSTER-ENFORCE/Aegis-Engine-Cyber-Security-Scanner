@@ -34,6 +34,7 @@ from .advanced_models import (
     AttackPatternDetection,
     RiskMetric,
 )
+from .utils import get_threat_severity_counts, risk_score_to_level, track_activity
 
 
 # ==========================================================
@@ -575,12 +576,7 @@ def risk_metrics_dashboard(request):
     ).order_by('scan_date')
     
     # Risk breakdown
-    risk_categories = {
-        'critical': ThreatFinding.objects.filter(severity='CRITICAL').count(),
-        'high': ThreatFinding.objects.filter(severity='HIGH').count(),
-        'medium': ThreatFinding.objects.filter(severity='MEDIUM').count(),
-        'low': ThreatFinding.objects.filter(severity='LOW').count(),
-    }
+    risk_categories = get_threat_severity_counts()
     
     context = {
         'latest_risk': latest_risk,
@@ -657,7 +653,7 @@ def api_risk_score(request):
     return JsonResponse({
         'success': True,
         'score': latest_risk.overall_risk_score,
-        'level': _get_risk_level(latest_risk.overall_risk_score),
+        'level': risk_score_to_level(latest_risk.overall_risk_score),
         'critical': latest_risk.critical_findings,
         'high': latest_risk.high_findings,
     })
@@ -692,26 +688,4 @@ def api_recent_threats(request):
 # HELPER FUNCTIONS
 # ==========================================================
 
-def track_activity(request, option, detail=""):
-    """Track user activity"""
-    if request.user.is_authenticated:
-        from .models import UserActivity
-        UserActivity.objects.create(
-            user=request.user,
-            option_used=option,
-            detail=detail,
-        )
-
-
-def _get_risk_level(score):
-    """Convert risk score to level"""
-    if score >= 90:
-        return "CRITICAL"
-    elif score >= 70:
-        return "HIGH"
-    elif score >= 40:
-        return "MEDIUM"
-    elif score >= 20:
-        return "LOW"
-    else:
-        return "MINIMAL"
+# track_activity and risk_score_to_level are imported from .utils

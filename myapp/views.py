@@ -25,6 +25,7 @@ from .models import (
     UserActivity,
 )
 from .scan_engine import active_network_connections, osi_model, run_combined_scan
+from .utils import get_threat_severity_counts, track_activity
 
 
 User = get_user_model()
@@ -51,15 +52,6 @@ BLOGS = [
         "body": "Keep firewall, antivirus, secure boot, disk encryption, patching, and user privilege controls enabled. Review startup apps and browser downloads regularly.",
     },
 ]
-
-
-def track_activity(request, option, detail=""):
-    if request.user.is_authenticated:
-        UserActivity.objects.create(
-            user=request.user,
-            option_used=option,
-            detail=detail,
-        )
 
 
 def home(request):
@@ -191,12 +183,13 @@ def dashboard(request):
     scans = ScanResult.objects.filter(user=request.user).order_by("-created_at")[:8]
     if severity_filter:
         scans = scans.filter(risk_level=severity_filter)
+    severity_counts = get_threat_severity_counts()
     context = {
         "risk_score": latest_scan.score if latest_scan else 100,
         "risk_level": latest_scan.risk_level if latest_scan else "LOW",
         "total_findings": ThreatFinding.objects.count(),
-        "critical_findings": ThreatFinding.objects.filter(severity="CRITICAL").count(),
-        "high_findings": ThreatFinding.objects.filter(severity="HIGH").count(),
+        "critical_findings": severity_counts["critical"],
+        "high_findings": severity_counts["high"],
         "total_incidents": Incident.objects.count(),
         "open_incidents": Incident.objects.filter(status="OPEN").count(),
         "recent_findings": ThreatFinding.objects.order_by("-created_at")[:10],
@@ -279,16 +272,20 @@ def _save_scan(request, data):
     return result
 
 
+def _run_scan_view(request, scan_type, template):
+    """Shared POST/GET handler for the four scan-type views."""
+    if request.method == "POST":
+        data = run_combined_scan(request.user, scan_type)
+        result = _save_scan(request, data)
+        track_activity(request, f"{scan_type} scan", f"Started scan #{result.id}")
+        return redirect("scan_result", result_id=result.id)
+    latest_scan = ScanResult.objects.filter(user=request.user).order_by("-created_at").first()
+    return render(request, template, {"latest_scan": latest_scan})
+
+
 @login_required
 def combined_scan(request):
-    if request.method == "POST":
-        data = run_combined_scan(request.user, "combined")
-        result = _save_scan(request, data)
-        track_activity(request, "combined scan", f"Started scan #{result.id}")
-        return redirect("scan_result", result_id=result.id)
-
-    latest_scan = ScanResult.objects.filter(user=request.user).order_by("-created_at").first()
-    return render(request, "myapp/combined_scan.html", {"latest_scan": latest_scan})
+    return _run_scan_view(request, "combined", "myapp/combined_scan.html")
 
 
 @login_required
@@ -312,35 +309,17 @@ def scan_result(request, result_id):
 
 @login_required
 def system_scan(request):
-    if request.method == "POST":
-        data = run_combined_scan(request.user, "system")
-        result = _save_scan(request, data)
-        track_activity(request, "system scan", f"Started scan #{result.id}")
-        return redirect("scan_result", result_id=result.id)
-    latest_scan = ScanResult.objects.filter(user=request.user).order_by("-created_at").first()
-    return render(request, "myapp/system.html", {"latest_scan": latest_scan})
+    return _run_scan_view(request, "system", "myapp/system.html")
 
 
 @login_required
 def network_scan(request):
-    if request.method == "POST":
-        data = run_combined_scan(request.user, "network")
-        result = _save_scan(request, data)
-        track_activity(request, "network scan", f"Started scan #{result.id}")
-        return redirect("scan_result", result_id=result.id)
-    latest_scan = ScanResult.objects.filter(user=request.user).order_by("-created_at").first()
-    return render(request, "myapp/network.html", {"latest_scan": latest_scan})
+    return _run_scan_view(request, "network", "myapp/network.html")
 
 
 @login_required
 def threat_detection(request):
-    if request.method == "POST":
-        data = run_combined_scan(request.user, "threat detection")
-        result = _save_scan(request, data)
-        track_activity(request, "threat detection", f"Started scan #{result.id}")
-        return redirect("scan_result", result_id=result.id)
-    latest_scan = ScanResult.objects.filter(user=request.user).order_by("-created_at").first()
-    return render(request, "myapp/threat_detection.html", {"latest_scan": latest_scan})
+    return _run_scan_view(request, "threat detection", "myapp/threat_detection.html")
 
 
 @login_required
