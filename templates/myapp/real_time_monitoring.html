@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+{% block title %}Real-Time Monitoring | Aegis Engine{% endblock %}
+{% block content %}
+<h1>&#x23f1; Real-Time Monitoring</h1>
+
+<section class="grid">
+    <div class="card" style="text-align:center;">
+        <h3>Total Alerts</h3>
+        <div style="font-size:2rem; color:var(--accent);">{{ total_alerts }}</div>
+    </div>
+    <div class="card" style="text-align:center;">
+        <h3>Critical Alerts</h3>
+        <div style="font-size:2rem; color:var(--danger);">{{ critical_alerts }}</div>
+    </div>
+    <div class="card" style="text-align:center;">
+        <h3>Unresolved</h3>
+        <div style="font-size:2rem; color:#ffd166;">{{ unresolved_alerts }}</div>
+    </div>
+</section>
+
+<h2 style="margin-top:24px;">Live Alerts Feed</h2>
+<div id="alertsFeed" class="table-wrapper">
+    <table>
+        <thead><tr><th>Severity</th><th>Type</th><th>Source</th><th>Description</th><th>Time</th></tr></thead>
+        <tbody>
+            {% for a in recent_alerts %}
+            <tr>
+                <td><span class="badge badge-{{ a.severity|lower }}">{{ a.severity }}</span></td>
+                <td>{{ a.alert_type }}</td>
+                <td>{{ a.source }}</td>
+                <td>{{ a.description|truncatewords:12 }}</td>
+                <td>{{ a.created_at|date:"H:i:s" }}</td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="5" class="muted">No alerts. System is quiet.</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<script>
+setInterval(function() {
+    fetch("{% url 'advanced:api_live_alerts' %}")
+    .then(r => r.json())
+    .then(data => {
+        if (data.alerts && data.alerts.length) {
+            const tbody = document.querySelector("#alertsFeed tbody");
+            tbody.innerHTML = data.alerts.map(a =>
+                '<tr><td><span class="badge badge-' + a.severity.toLowerCase() + '">' + a.severity + '</span></td>' +
+                '<td>' + a.alert_type + '</td><td>' + a.source + '</td>' +
+                '<td>' + a.description + '</td><td>' + a.time + '</td></tr>'
+            ).join("");
+        }
+    }).catch(() => {});
+}, 5000);
+</script>
+{% endblock %}

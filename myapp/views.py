@@ -188,9 +188,10 @@ def dashboard(request):
     track_activity(request, "dashboard", "Viewed user dashboard")
     latest_scan = ScanResult.objects.filter(user=request.user).order_by("-created_at").first()
     severity_filter = request.GET.get("severity", "")
-    scans = ScanResult.objects.filter(user=request.user).order_by("-created_at")[:8]
+    scans_qs = ScanResult.objects.filter(user=request.user).order_by("-created_at")
     if severity_filter:
-        scans = scans.filter(risk_level=severity_filter)
+        scans_qs = scans_qs.filter(risk_level=severity_filter)
+    scans = scans_qs[:8]
     context = {
         "risk_score": latest_scan.score if latest_scan else 100,
         "risk_level": latest_scan.risk_level if latest_scan else "LOW",
@@ -211,15 +212,37 @@ def dashboard(request):
 @login_required
 def launcher(request):
     track_activity(request, "launcher", "Viewed scanner launcher")
-    modules = [
-        {"name": "Combined Scan", "url": "/scan/"},
-        {"name": "System Scan", "url": "/system/"},
-        {"name": "Network Scan", "url": "/network/"},
-        {"name": "Threat Detection", "url": "/threat-detection/"},
-        {"name": "OSI Model", "url": "/osi-model/"},
-        {"name": "Blogs", "url": "/blogs/"},
+    core_modules = [
+        {"name": "Combined Scan", "url": "/scan/", "icon": "\u26a1", "desc": "Full endpoint assessment combining all scan modules."},
+        {"name": "System Scan", "url": "/system/", "icon": "\U0001f5a5", "desc": "Asset discovery, hardware fingerprinting, compliance check."},
+        {"name": "Network Scan", "url": "/network/", "icon": "\U0001f310", "desc": "Open ports, active connections, network exposure."},
+        {"name": "Threat Detection", "url": "/threat-detection/", "icon": "\U0001f6e1", "desc": "Credential scan, behavioral analysis, threat database."},
+        {"name": "Threat Intelligence", "url": "/threat-intelligence/", "icon": "\U0001f50d", "desc": "SHA256 lookups, IOC correlation, reputation checks."},
+        {"name": "MITRE ATT&CK", "url": "/mitre-mapping/", "icon": "\U0001f9e9", "desc": "Map findings to MITRE ATT&CK techniques and tactics."},
     ]
-    return render(request, "myapp/launcher.html", {"modules": modules})
+    advanced_modules = [
+        {"name": "Malware Analysis", "url": "/advanced/malware-analysis/", "icon": "\U0001f9ea", "desc": "Static analysis, signature matching, file reputation."},
+        {"name": "Process Analysis", "url": "/advanced/process-analysis/", "icon": "\u2699", "desc": "Detect masquerading, LOLBins, injection, C2 callbacks."},
+        {"name": "Behavioral Threats", "url": "/advanced/behavioral-threats/", "icon": "\U0001f4ca", "desc": "Ransomware, keylogger, cryptominer, exfiltration patterns."},
+        {"name": "Network Threat Intel", "url": "/advanced/network-threat-intel/", "icon": "\U0001f4e1", "desc": "IP/domain reputation, C2 detection, GeoIP analysis."},
+        {"name": "Real-Time Monitoring", "url": "/advanced/real-time-monitoring/", "icon": "\u23f1", "desc": "File watchdog, instant detection, live alert generation."},
+        {"name": "USB Monitoring", "url": "/advanced/usb-monitoring/", "icon": "\U0001f4be", "desc": "USB insertion detection, auto-scan, device fingerprinting."},
+        {"name": "File Integrity (FIM)", "url": "/advanced/fim-dashboard/", "icon": "\U0001f4c1", "desc": "Baseline hashing, change detection, unauthorized modifications."},
+        {"name": "Threat Hunting", "url": "/advanced/threat-hunting/", "icon": "\U0001f3af", "desc": "IOC lookup, threat hunting rules, indicator scanning."},
+    ]
+    response_modules = [
+        {"name": "Incidents", "url": "/incidents/", "icon": "\U0001f6a8", "desc": "Incident management, severity tracking, response timeline."},
+        {"name": "Quarantine", "url": "/quarantine/", "icon": "\U0001f512", "desc": "Isolate malicious files, rename, encrypt, store metadata."},
+        {"name": "Risk Assessment", "url": "/risk-assessment/", "icon": "\U0001f4c8", "desc": "Weighted risk scoring across all module findings."},
+        {"name": "Threat Timeline", "url": "/timeline/", "icon": "\u23f3", "desc": "Chronological event log from detection to remediation."},
+        {"name": "Forensic Analysis", "url": "/advanced/forensic-analysis/", "icon": "\U0001f52c", "desc": "Forensic snapshots, evidence collection, kill chain."},
+        {"name": "Attack Patterns", "url": "/advanced/attack-patterns/", "icon": "\U0001f578", "desc": "Kill chain visualization, ATT&CK pattern detection."},
+    ]
+    return render(request, "myapp/launcher.html", {
+        "core_modules": core_modules,
+        "advanced_modules": advanced_modules,
+        "response_modules": response_modules,
+    })
 
 
 @login_required

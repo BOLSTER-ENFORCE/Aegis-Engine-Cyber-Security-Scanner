@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% block title %}File Integrity Monitoring | Aegis Engine{% endblock %}
+{% block content %}
+<h1>&#x1f4c1; File Integrity Monitoring (FIM)</h1>
+
+<section class="grid">
+    <div class="card" style="text-align:center;">
+        <h3>Total Events</h3>
+        <div style="font-size:2rem; color:var(--accent);">{{ total_events }}</div>
+    </div>
+    <div class="card" style="text-align:center;">
+        <h3>Unauthorized Changes</h3>
+        <div style="font-size:2rem; color:var(--danger);">{{ unauthorized_count }}</div>
+    </div>
+    <div class="card" style="text-align:center;">
+        <h3>Monitored Paths</h3>
+        <div style="font-size:2rem; color:var(--accent-2);">{{ monitored_paths }}</div>
+    </div>
+</section>
+
+<h2 style="margin-top:24px;">Recent File Integrity Events</h2>
+<div class="table-wrapper">
+    <table>
+        <thead><tr><th>Event</th><th>File Path</th><th>Change Type</th><th>Authorized</th><th>Time</th></tr></thead>
+        <tbody>
+            {% for e in recent_events %}
+            <tr>
+                <td>{{ e.event_type }}</td>
+                <td style="font-family:monospace; font-size:12px;">{{ e.file_path|truncatechars:50 }}</td>
+                <td>{{ e.change_type|default:"-" }}</td>
+                <td>{% if e.is_authorized %}<span style="color:var(--accent);">Yes</span>{% else %}<span style="color:var(--danger);">No</span>{% endif %}</td>
+                <td>{{ e.detected_at|date:"Y-m-d H:i" }}</td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="5" class="muted">No file integrity events recorded.</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

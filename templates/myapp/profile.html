@@ -1,11 +1,52 @@
 {% extends "base.html" %}
+{% block title %}Profile | Aegis Engine{% endblock %}
 {% block content %}
-<h2>Profile</h2>
-<p><strong>Username:</strong> {{ profile.user.username }}</p>
-<p><strong>Email:</strong> {{ profile.user.email }}</p>
-<p><strong>Organization:</strong> {{ profile.organization }}</p>
-<p><strong>Role:</strong> {{ profile.role }}</p>
-<p><strong>Phone:</strong> {{ profile.phone }}</p>
+<h1>Security Profile</h1>
 
-<a href="{% url 'edit_profile' %}" class="btn btn-secondary">Edit Profile</a>
+<section class="grid">
+    <div class="card" style="text-align:center; grid-column: span 2;">
+        <div style="width:100px; height:100px; border-radius:50%; margin:0 auto 12px;
+                    background:var(--panel-soft); border:3px solid var(--accent);
+                    display:grid; place-items:center; font-size:2.5rem; overflow:hidden;
+                    box-shadow: 0 0 20px rgba(32,201,151,0.3);">
+            {% if user_obj.profile_image %}
+                <img src="{{ user_obj.profile_image.url }}" style="width:100%; height:100%; object-fit:cover;">
+            {% else %}
+                &#x1f464;
+            {% endif %}
+        </div>
+        <h2>{{ user_obj.username }}</h2>
+        <p class="muted">{{ user_obj.email }}</p>
+        {% if user_obj.is_superuser %}
+            <span style="display:inline-block; padding:4px 12px; border-radius:12px; background:rgba(255,107,107,0.15); color:var(--danger); font-size:13px; font-weight:700; margin-top:4px;">Admin</span>
+        {% elif user_obj.is_analyst %}
+            <span style="display:inline-block; padding:4px 12px; border-radius:12px; background:rgba(110,198,255,0.15); color:var(--accent-2); font-size:13px; font-weight:700; margin-top:4px;">Analyst</span>
+        {% else %}
+            <span style="display:inline-block; padding:4px 12px; border-radius:12px; background:rgba(32,201,151,0.15); color:var(--accent); font-size:13px; font-weight:700; margin-top:4px;">User</span>
+        {% endif %}
+    </div>
+
+    <div class="card">
+        <h3>&#x1f4cb; Account Details</h3>
+        <table>
+            <tr><td class="muted">Username</td><td>{{ user_obj.username }}</td></tr>
+            <tr><td class="muted">Email</td><td>{{ user_obj.email }}</td></tr>
+            <tr><td class="muted">First Name</td><td>{{ user_obj.first_name|default:"-" }}</td></tr>
+            <tr><td class="muted">Last Name</td><td>{{ user_obj.last_name|default:"-" }}</td></tr>
+            <tr><td class="muted">Phone</td><td>{{ user_obj.phone|default:"-" }}</td></tr>
+            <tr><td class="muted">Joined</td><td>{{ user_obj.date_joined }}</td></tr>
+            <tr><td class="muted">Last Login</td><td>{{ user_obj.last_login|default:"Never" }}</td></tr>
+        </table>
+    </div>
+
+    <div class="card">
+        <h3>&#x1f6e0; Account Actions</h3>
+        <div style="display:grid; gap:10px;">
+            <a href="{% url 'edit_profile' %}" class="btn">&#x270f; Edit Profile</a>
+            <a href="{% url 'change_password' %}" class="btn">&#x1f512; Change Password</a>
+            <a href="{% url 'dashboard' %}" class="btn">&#x1f4ca; Dashboard</a>
+            <a href="{% url 'launcher' %}" class="btn">&#x1f680; Launcher</a>
+        </div>
+    </div>
+</section>
 {% endblock %}

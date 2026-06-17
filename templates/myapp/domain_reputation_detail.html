@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block title %}Domain Reputation: {{ domain_data.domain }} | Aegis Engine{% endblock %}
+{% block content %}
+<h1>&#x1f310; Domain Reputation Detail</h1>
+
+<section class="grid">
+    <div class="card" style="grid-column: span 2;">
+        <h3>{{ domain_data.domain }}</h3>
+        <table>
+            <tr><td class="muted">Verdict</td><td><span class="badge badge-{{ domain_data.verdict|lower }}">{{ domain_data.verdict }}</span></td></tr>
+            <tr><td class="muted">Category</td><td>{{ domain_data.category|default:"-" }}</td></tr>
+            <tr><td class="muted">Risk Score</td><td>{{ domain_data.risk_score }}</td></tr>
+            <tr><td class="muted">Registrar</td><td>{{ domain_data.registrar|default:"-" }}</td></tr>
+            <tr><td class="muted">Creation Date</td><td>{{ domain_data.creation_date|default:"-" }}</td></tr>
+            <tr><td class="muted">Last Checked</td><td>{{ domain_data.last_checked|date:"Y-m-d H:i" }}</td></tr>
+        </table>
+    </div>
+</section>
+
+<a href="{% url 'advanced:network_threat_intel' %}" class="btn" style="margin-top:16px;">Back to Network Threat Intel</a>
+{% endblock %}

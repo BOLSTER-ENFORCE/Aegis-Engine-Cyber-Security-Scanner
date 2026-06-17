@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% block title %}Kill Chain | Aegis Engine{% endblock %}
+{% block content %}
+<h1>&#x1f578; Kill Chain Visualization</h1>
+<p class="muted">Cyber Kill Chain stages with detected attack patterns mapped to each phase.</p>
+
+<div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(200px, 1fr)); gap:12px; margin-top:24px;">
+    {% for stage in kill_chain_stages %}
+    <div class="card" style="text-align:center; border-top:3px solid {% if stage.count > 0 %}var(--danger){% else %}var(--border){% endif %};">
+        <div style="font-size:1.2rem; font-weight:700; margin-bottom:4px;">{{ stage.phase }}</div>
+        <div style="font-size:2rem; color:{% if stage.count > 0 %}var(--danger){% else %}var(--accent){% endif %};">{{ stage.count }}</div>
+        <p class="muted" style="font-size:12px;">detections</p>
+    </div>
+    {% empty %}
+    <div class="card"><p class="muted">No kill chain data yet.</p></div>
+    {% endfor %}
+</div>
+
+<h2 style="margin-top:24px;">Stage Details</h2>
+<div class="table-wrapper">
+    <table>
+        <thead><tr><th>Phase</th><th>Technique</th><th>Tactic</th><th>Confidence</th><th>Detected</th></tr></thead>
+        <tbody>
+            {% for p in all_patterns %}
+            <tr>
+                <td>{{ p.kill_chain_phase }}</td>
+                <td>{{ p.technique_name }} ({{ p.mitre_technique_id }})</td>
+                <td>{{ p.mitre_tactic }}</td>
+                <td>{{ p.confidence }}%</td>
+                <td>{{ p.detected_at|date:"Y-m-d H:i" }}</td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="5" class="muted">No patterns detected.</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<a href="{% url 'advanced:attack_patterns' %}" class="btn" style="margin-top:16px;">Back to Attack Patterns</a>
+{% endblock %}

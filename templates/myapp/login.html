@@ -1,10 +1,58 @@
 {% extends "base.html" %}
+{% block title %}Login | Aegis Engine{% endblock %}
 {% block content %}
-<h2>Login</h2>
-<form method="post">
-  {% csrf_token %}
-  <label>Username:</label><input type="text" name="username"><br>
-  <label>Password:</label><input type="password" name="password"><br>
-  <button type="submit">Login</button>
-</form>
+<div style="max-width:440px; margin:40px auto;">
+    <div class="panel" style="text-align:center;">
+        <div style="font-size:3rem; margin-bottom:8px;">&#x1f512;</div>
+        <h1>Login</h1>
+        <p class="muted">Enter your credentials to access Aegis Engine</p>
+    </div>
+
+    <form method="post" id="loginForm" style="margin-top:16px;">
+        {% csrf_token %}
+        <label for="username">Username</label>
+        <input type="text" id="username" name="username" placeholder="Enter username" required autofocus>
+
+        <label for="password">Password</label>
+        <div style="position:relative;">
+            <input type="password" id="password" name="password" placeholder="Enter password" required>
+            <button type="button" data-toggle-password="#password"
+                    style="position:absolute; right:8px; top:50%; transform:translateY(-50%);
+                           min-height:28px; padding:2px 8px; font-size:12px;">Show</button>
+        </div>
+
+        <button type="submit" id="loginBtn">Login</button>
+
+        <div style="display:flex; justify-content:space-between; margin-top:8px;">
+            <a href="{% url 'forgot_password' %}" style="font-size:13px; color:var(--accent-2);">Forgot password?</a>
+            <a href="{% url 'register' %}" style="font-size:13px; color:var(--accent-2);">Create account</a>
+        </div>
+    </form>
+
+    <div id="loginLoader" style="display:none; text-align:center; margin-top:16px;">
+        <div class="loader-spinner"></div>
+        <p class="muted" style="margin-top:8px;">Authenticating...</p>
+    </div>
+</div>
+
+<style>
+    .loader-spinner {
+        display: inline-block;
+        width: 36px;
+        height: 36px;
+        border: 3px solid var(--border);
+        border-top-color: var(--accent);
+        border-radius: 50%;
+        animation: spin 0.8s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+</style>
+
+<script>
+document.getElementById("loginForm").addEventListener("submit", function() {
+    document.getElementById("loginBtn").disabled = true;
+    document.getElementById("loginBtn").textContent = "Logging in...";
+    document.getElementById("loginLoader").style.display = "block";
+});
+</script>
 {% endblock %}

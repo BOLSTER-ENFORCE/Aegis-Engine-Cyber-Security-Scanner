@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% block title %}Process Analysis | Aegis Engine{% endblock %}
+{% block content %}
+<h1>&#x2699; Process Analysis</h1>
+
+<section class="grid">
+    <div class="card" style="text-align:center;">
+        <h3>Suspicious Processes</h3>
+        <div style="font-size:2rem; color:var(--danger);">{{ total_suspicious }}</div>
+    </div>
+    <div class="card" style="text-align:center;">
+        <h3>High-Risk</h3>
+        <div style="font-size:2rem; color:var(--danger);">{{ high_risk_count }}</div>
+    </div>
+</section>
+
+<h2 style="margin-top:24px;">Threat Type Breakdown</h2>
+<section class="grid">
+    {% for item in threat_breakdown %}
+    <div class="card">
+        <h3>{{ item.threat_type }}</h3>
+        <div style="font-size:1.4rem; color:var(--accent);">{{ item.count }}</div>
+    </div>
+    {% empty %}
+    <div class="card"><p class="muted">No suspicious processes detected yet.</p></div>
+    {% endfor %}
+</section>
+
+<h2 style="margin-top:24px;">Recent Suspicious Processes</h2>
+<div class="table-wrapper">
+    <table>
+        <thead><tr><th>Process</th><th>PID</th><th>Threat Type</th><th>Parent</th><th>Risk Score</th><th>Detected</th></tr></thead>
+        <tbody>
+            {% for p in suspicious_processes %}
+            <tr>
+                <td>{{ p.process_name }}</td>
+                <td>{{ p.process_id }}</td>
+                <td>{{ p.threat_type }}</td>
+                <td>{{ p.parent_process|default:"-" }}</td>
+                <td><span style="color:{% if p.risk_score >= 80 %}var(--danger){% elif p.risk_score >= 50 %}#ffd166{% else %}var(--accent){% endif %};">{{ p.risk_score }}</span></td>
+                <td>{{ p.detected_at|date:"Y-m-d H:i" }}</td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="6" class="muted">No suspicious processes detected.</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

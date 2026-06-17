@@ -1,0 +1,96 @@
+{% extends "base.html" %}
+{% block title %}Risk Metrics | Aegis Engine{% endblock %}
+{% block content %}
+<h1>&#x1f4ca; Risk Metrics Dashboard</h1>
+
+<section class="grid">
+    <div class="card" style="text-align:center;">
+        <h3>Overall Risk Score</h3>
+        <div style="font-size:2.5rem; color:{% if overall_score >= 80 %}var(--danger){% elif overall_score >= 50 %}#ffd166{% else %}var(--accent){% endif %};">{{ overall_score }}</div>
+        <p class="muted">out of 100</p>
+    </div>
+    <div class="card" style="text-align:center;">
+        <h3>Critical Risks</h3>
+        <div style="font-size:2rem; color:var(--danger);">{{ critical_count }}</div>
+    </div>
+    <div class="card" style="text-align:center;">
+        <h3>High Risks</h3>
+        <div style="font-size:2rem; color:#ffd166;">{{ high_count }}</div>
+    </div>
+    <div class="card" style="text-align:center;">
+        <h3>Total Metrics</h3>
+        <div style="font-size:2rem; color:var(--accent);">{{ total_metrics }}</div>
+    </div>
+</section>
+
+<h2 style="margin-top:24px;">Risk Category Breakdown</h2>
+<section class="grid">
+    {% for item in category_breakdown %}
+    <div class="card">
+        <h3>{{ item.category }}</h3>
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-top:8px;">
+            <div style="font-size:1.6rem; color:{% if item.avg_score >= 80 %}var(--danger){% elif item.avg_score >= 50 %}#ffd166{% else %}var(--accent){% endif %};">
+                {{ item.avg_score }}
+            </div>
+            <span class="muted">avg score</span>
+        </div>
+    </div>
+    {% empty %}
+    <div class="card"><p class="muted">No risk metrics data yet.</p></div>
+    {% endfor %}
+</section>
+
+<h2 style="margin-top:24px;">Risk Trend</h2>
+<div class="panel" style="padding:16px;">
+    <canvas id="riskTrendChart" height="200"></canvas>
+</div>
+
+<h2 style="margin-top:24px;">Recent Risk Metrics</h2>
+<div class="table-wrapper">
+    <table>
+        <thead><tr><th>Category</th><th>Metric</th><th>Score</th><th>Severity</th><th>Time</th></tr></thead>
+        <tbody>
+            {% for m in recent_metrics %}
+            <tr>
+                <td>{{ m.category }}</td>
+                <td>{{ m.metric_name }}</td>
+                <td><span style="color:{% if m.score >= 80 %}var(--danger){% elif m.score >= 50 %}#ffd166{% else %}var(--accent){% endif %};">{{ m.score }}</span></td>
+                <td><span class="badge badge-{{ m.severity|lower }}">{{ m.severity }}</span></td>
+                <td>{{ m.calculated_at|date:"Y-m-d H:i" }}</td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="5" class="muted">No risk metrics recorded yet.</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+const trendData = {{ trend_data|safe }};
+if (trendData && trendData.length) {
+    new Chart(document.getElementById("riskTrendChart"), {
+        type: "line",
+        data: {
+            labels: trendData.map(d => d.label),
+            datasets: [{
+                label: "Risk Score",
+                data: trendData.map(d => d.score),
+                borderColor: "#20c997",
+                backgroundColor: "rgba(32,201,151,0.1)",
+                fill: true,
+                tension: 0.3,
+            }]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                y: { min: 0, max: 100, ticks: { color: "#8892b0" }, grid: { color: "rgba(255,255,255,0.05)" } },
+                x: { ticks: { color: "#8892b0" }, grid: { color: "rgba(255,255,255,0.05)" } }
+            },
+            plugins: { legend: { labels: { color: "#ccd6f6" } } }
+        }
+    });
+}
+</script>
+{% endblock %}

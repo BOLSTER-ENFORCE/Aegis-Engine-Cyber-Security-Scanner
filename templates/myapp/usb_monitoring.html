@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% block title %}USB Monitoring | Aegis Engine{% endblock %}
+{% block content %}
+<h1>&#x1f4be; USB Device Monitoring</h1>
+
+<section class="grid">
+    <div class="card" style="text-align:center;">
+        <h3>Total Events</h3>
+        <div style="font-size:2rem; color:var(--accent);">{{ total_events }}</div>
+    </div>
+    <div class="card" style="text-align:center;">
+        <h3>Blocked Devices</h3>
+        <div style="font-size:2rem; color:var(--danger);">{{ blocked_count }}</div>
+    </div>
+    <div class="card" style="text-align:center;">
+        <h3>Unique Devices</h3>
+        <div style="font-size:2rem; color:var(--accent-2);">{{ unique_devices }}</div>
+    </div>
+</section>
+
+<h2 style="margin-top:24px;">Recent USB Activity</h2>
+<div class="table-wrapper">
+    <table>
+        <thead><tr><th>Device</th><th>Vendor</th><th>Serial</th><th>Action</th><th>Blocked</th><th>Time</th></tr></thead>
+        <tbody>
+            {% for u in recent_usb %}
+            <tr>
+                <td>{{ u.device_name }}</td>
+                <td>{{ u.vendor_id|default:"-" }}</td>
+                <td style="font-family:monospace; font-size:12px;">{{ u.serial_number|default:"-"|truncatechars:16 }}</td>
+                <td>{{ u.action }}</td>
+                <td>{% if u.was_blocked %}<span style="color:var(--danger);">Blocked</span>{% else %}<span style="color:var(--accent);">Allowed</span>{% endif %}</td>
+                <td>{{ u.detected_at|date:"Y-m-d H:i" }}</td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="6" class="muted">No USB activity recorded.</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}
