@@ -1,0 +1,88 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>Scan Result #{{ result.id }}</h1>
+<p class="muted">{{ result.created_at }} | {{ result.scan_type }}</p>
+
+<div class="grid">
+    <div class="card"><h3>Score</h3><div class="stat">{{ result.score }}</div></div>
+    <div class="card"><h3>Risk</h3><div class="stat risk-{{ result.risk_level }}">{{ result.risk_level }}</div></div>
+    <div class="card"><h3>Open Ports</h3><div class="stat">{{ ports|length }}</div></div>
+    <div class="card"><h3>Detected Files</h3><div class="stat">{{ files|length }}</div></div>
+</div>
+
+<div class="actions no-print">
+    <a class="btn btn-primary" href="{% url 'scan_pdf' result.id %}">Download PDF</a>
+    <a class="btn" href="mailto:?subject=Aegis scan result&body=Scan score {{ result.score }} risk {{ result.risk_level }}">Gmail</a>
+    <a class="btn" href="https://wa.me/?text=Aegis%20scan%20score%20{{ result.score }}%20risk%20{{ result.risk_level }}">WhatsApp</a>
+    <a class="btn" href="https://discord.com/channels/@me">Discord</a>
+    <button type="button" onclick="window.print()">Print</button>
+</div>
+
+<section class="panel">
+    <h2>Active Protocols and Ports</h2>
+    <table>
+        <tr><th>Protocol</th><th>Port</th><th>Service</th><th>Why Open</th><th>Risk</th><th>Resolution</th></tr>
+        {% for port in ports %}
+            <tr>
+                <td>{{ port.protocol }}</td>
+                <td>{{ port.port }}</td>
+                <td>{{ port.service }}</td>
+                <td>{{ port.why_open }}</td>
+                <td class="risk-{{ port.risk|upper }}">{{ port.risk }}</td>
+                <td>{{ port.resolution }}</td>
+            </tr>
+        {% empty %}
+            <tr><td colspan="6">No common risky localhost ports were open.</td></tr>
+        {% endfor %}
+    </table>
+</section>
+
+<section class="panel" style="margin-top:16px;">
+    <h2>Detected Files</h2>
+    <table>
+        <tr><th>Name</th><th>Path</th><th>Risk</th><th>Malicious</th><th>Reason</th><th>Resolution</th></tr>
+        {% for file in files %}
+            <tr>
+                <td>{{ file.name }}</td>
+                <td>{{ file.path }}</td>
+                <td>{{ file.risk }}</td>
+                <td>{{ file.malicious }}</td>
+                <td>{{ file.reason }}</td>
+                <td>{{ file.resolution }}</td>
+            </tr>
+        {% empty %}
+            <tr><td colspan="6">No suspicious files found in the scanned folders.</td></tr>
+        {% endfor %}
+    </table>
+</section>
+
+<section class="panel" style="margin-top:16px;">
+    <h2>AI-Style Recommendations</h2>
+    <ul>
+        {% for rec in recommendations %}
+            <li>{{ rec }}</li>
+        {% endfor %}
+    </ul>
+</section>
+
+<section class="panel" style="margin-top:16px;">
+    <h2>Modules Covered</h2>
+    <div class="grid">
+        <div class="card"><h3>Asset Discovery</h3><p>{{ modules.asset_discovery.hostname }} | {{ modules.asset_discovery.ip_address }} | {{ modules.asset_discovery.os_name }}</p></div>
+        <div class="card"><h3>Endpoint Fingerprint</h3><p>{{ modules.endpoint_fingerprinting.fingerprint }}</p></div>
+        <div class="card"><h3>Threat Intel</h3><p>{{ modules.threat_intelligence.note }}</p></div>
+        <div class="card"><h3>MITRE ATT&CK</h3><p>T1547, T1046, T1204 mapped when matching conditions appear.</p></div>
+    </div>
+</section>
+
+<section class="panel" style="margin-top:16px;">
+    <h2>Useful Blogs</h2>
+    {% for blog in blogs %}
+        <article class="card" style="margin-bottom:10px;">
+            <h3>{{ blog.title }}</h3>
+            <p class="muted">{{ blog.category }}</p>
+            <p>{{ blog.body }}</p>
+        </article>
+    {% endfor %}
+</section>
+{% endblock %}

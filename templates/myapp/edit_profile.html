@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Edit Profile</h2>
+<form method="post">
+  {% csrf_token %}
+  <label>Organization:</label>
+  <input type="text" name="organization" value="{{ profile.organization }}"><br>
+  <label>Role:</label>
+  <input type="text" name="role" value="{{ profile.role }}"><br>
+  <label>Phone:</label>
+  <input type="text" name="phone" value="{{ profile.phone }}"><br>
+  <button type="submit">Save</button>
+</form>
+{% endblock %}

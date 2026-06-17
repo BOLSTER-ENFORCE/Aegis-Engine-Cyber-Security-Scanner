@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>Contact</h1>
+<form method="post">
+    {% csrf_token %}
+    <label>Name</label>
+    <input type="text" name="name" value="{{ user.username }}">
+    <label>Gmail / Email</label>
+    <input type="email" name="email" value="{{ user.email }}" required>
+    <label>Type</label>
+    <select name="message_type">
+        <option value="suggestion">Suggestion</option>
+        <option value="complaint">Complaint</option>
+        <option value="question">Question</option>
+    </select>
+    <label>Message</label>
+    <textarea name="message" rows="6" required></textarea>
+    <button type="submit">Send To Admin</button>
+</form>
+{% endblock %}

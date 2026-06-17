@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>OSI Model</h1>
+<section class="panel">
+    <table>
+        <tr><th>Layer</th><th>Name</th><th>Examples</th><th>Security Focus</th></tr>
+        {% for layer in layers %}
+            <tr>
+                <td>{{ layer.layer }}</td>
+                <td>{{ layer.name }}</td>
+                <td>{{ layer.examples }}</td>
+                <td>{{ layer.security }}</td>
+            </tr>
+        {% endfor %}
+    </table>
+</section>
+{% endblock %}

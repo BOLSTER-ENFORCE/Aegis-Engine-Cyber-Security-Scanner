@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>Security Blogs</h1>
+<div class="grid">
+    {% for blog in blogs %}
+        <article class="card">
+            <h2>{{ blog.title }}</h2>
+            <p class="muted">{{ blog.category }}</p>
+            <p>{{ blog.body }}</p>
+        </article>
+    {% endfor %}
+</div>
+{% endblock %}

@@ -1,0 +1,392 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{% block title %}Aegis Engine{% endblock %}</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --bg: #09111f;
+            --panel: #111b2d;
+            --panel-soft: #17243a;
+            --text: #edf4fb;
+            --muted: #a8b5c4;
+            --accent: #20c997;
+            --accent-2: #6ec6ff;
+            --border: rgba(255, 255, 255, 0.14);
+            --danger: #ff6b6b;
+            --warning: #ffd166;
+        }
+
+        body.light {
+            --bg: #f5f7fb;
+            --panel: #ffffff;
+            --panel-soft: #eef3f8;
+            --text: #162032;
+            --muted: #566579;
+            --accent: #087f5b;
+            --accent-2: #0b72b9;
+            --border: rgba(22, 32, 50, 0.16);
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            background:
+                radial-gradient(circle at 15% 20%, rgba(32, 201, 151, 0.16), transparent 24rem),
+                radial-gradient(circle at 80% 10%, rgba(110, 198, 255, 0.12), transparent 22rem),
+                var(--bg);
+            color: var(--text);
+            font-family: Arial, Helvetica, sans-serif;
+            line-height: 1.5;
+            overflow-x: hidden;
+        }
+
+        a { color: inherit; }
+
+        .app-shell {
+            min-height: 100vh;
+            display: grid;
+            grid-template-columns: 248px 1fr;
+        }
+
+        .topbar {
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            display: flex;
+            align-items: flex-start;
+            justify-content: flex-start;
+            flex-direction: column;
+            gap: 16px;
+            min-height: 100vh;
+            padding: 18px;
+            border-right: 1px solid var(--border);
+            border-bottom: 0;
+            background: color-mix(in srgb, var(--bg) 88%, transparent);
+            backdrop-filter: blur(10px);
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 18px;
+            font-weight: 800;
+            text-decoration: none;
+        }
+
+        .brand-mark {
+            width: 30px;
+            height: 30px;
+            display: grid;
+            place-items: center;
+            border-radius: 7px;
+            background: var(--accent);
+            color: #03110d;
+            font-weight: 900;
+        }
+
+        .nav {
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+            gap: 8px;
+        }
+
+        .nav a,
+        .btn,
+        button {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 38px;
+            padding: 8px 13px;
+            border: 1px solid var(--border);
+            border-radius: 7px;
+            background: var(--panel-soft);
+            color: var(--text);
+            text-decoration: none;
+            font: inherit;
+            font-weight: 700;
+            cursor: pointer;
+            box-shadow: 0 0 0 rgba(32, 201, 151, 0);
+            transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
+        }
+
+        .nav a:hover,
+        .btn:hover,
+        button:hover {
+            border-color: var(--accent);
+            transform: translateY(-1px);
+            box-shadow: 0 0 22px rgba(32, 201, 151, 0.26);
+        }
+
+        .btn-primary,
+        button {
+            background: var(--accent);
+            border-color: var(--accent);
+            color: #03110d;
+        }
+
+        main {
+            width: min(1180px, calc(100% - 32px));
+            margin: 0 auto;
+            padding: 32px 0 56px;
+            flex: 1;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 14px;
+        }
+
+        .card,
+        form,
+        .panel {
+            padding: 18px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            background: var(--panel);
+            box-shadow: 0 0 0 1px rgba(32, 201, 151, 0.04), 0 16px 44px rgba(0, 0, 0, 0.22);
+        }
+
+        .card:hover,
+        .panel:hover {
+            border-color: rgba(32, 201, 151, 0.46);
+            box-shadow: 0 0 28px rgba(32, 201, 151, 0.16);
+        }
+
+        .stat {
+            font-size: 28px;
+            font-weight: 800;
+            color: var(--accent);
+        }
+
+        .muted,
+        p,
+        label {
+            color: var(--muted);
+        }
+
+        h1, h2, h3 { margin-top: 0; }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            color: var(--text);
+            overflow-wrap: anywhere;
+        }
+
+        th, td {
+            padding: 10px;
+            border-bottom: 1px solid var(--border);
+            text-align: left;
+            vertical-align: top;
+        }
+
+        th {
+            color: var(--accent);
+            background: var(--panel-soft);
+        }
+
+        input,
+        select,
+        textarea {
+            width: 100%;
+            min-height: 38px;
+            padding: 8px 10px;
+            border: 1px solid var(--border);
+            border-radius: 6px;
+            background: var(--panel-soft);
+            color: var(--text);
+            font: inherit;
+        }
+
+        form {
+            width: min(520px, 100%);
+            display: grid;
+            gap: 12px;
+        }
+
+        .wide-form {
+            width: 100%;
+        }
+
+        .messages {
+            display: grid;
+            gap: 8px;
+            margin-bottom: 18px;
+        }
+
+        .message {
+            padding: 10px 12px;
+            border: 1px solid var(--border);
+            border-radius: 7px;
+            background: var(--panel-soft);
+        }
+
+        .risk-LOW { color: var(--accent); }
+        .risk-MEDIUM { color: var(--warning); }
+        .risk-HIGH, .risk-CRITICAL { color: var(--danger); }
+
+        .particle {
+            position: fixed;
+            width: 3px;
+            height: 3px;
+            border-radius: 50%;
+            background: var(--accent);
+            opacity: 0.5;
+            pointer-events: none;
+            animation: drift 9s linear infinite;
+        }
+
+        .attack-line {
+            position: fixed;
+            top: 10%;
+            left: 248px;
+            width: 120px;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, var(--danger), transparent);
+            pointer-events: none;
+            animation: attackSweep 4s linear infinite;
+        }
+
+        .terminal {
+            font-family: Consolas, Monaco, monospace;
+            background: #020812;
+            color: #77ffcc;
+            border: 1px solid rgba(32, 201, 151, 0.42);
+            border-radius: 8px;
+            padding: 14px;
+            min-height: 110px;
+            overflow: hidden;
+        }
+
+        .pulse-alert {
+            animation: pulseAlert 1.5s ease-in-out infinite;
+        }
+
+        @keyframes drift {
+            from { transform: translateY(105vh) translateX(0); }
+            to { transform: translateY(-10vh) translateX(80px); }
+        }
+
+        @keyframes attackSweep {
+            from { transform: translateX(-160px); opacity: 0; }
+            20% { opacity: 1; }
+            to { transform: translateX(110vw); opacity: 0; }
+        }
+
+        @keyframes pulseAlert {
+            0%, 100% { box-shadow: 0 0 0 rgba(255, 107, 107, 0.1); }
+            50% { box-shadow: 0 0 24px rgba(255, 107, 107, 0.42); }
+        }
+
+        .actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin: 16px 0;
+        }
+
+        @media print {
+            .topbar, .no-print { display: none; }
+            body { background: #fff; color: #000; }
+            .card, .panel { border-color: #aaa; }
+        }
+
+        @media (max-width: 760px) {
+            .app-shell {
+                grid-template-columns: 1fr;
+            }
+            .topbar {
+                min-height: auto;
+                align-items: flex-start;
+                flex-direction: column;
+                border-right: 0;
+                border-bottom: 1px solid var(--border);
+            }
+            .nav { justify-content: flex-start; flex-direction: row; }
+            .attack-line { left: 0; }
+        }
+    </style>
+</head>
+<body>
+    <div class="attack-line"></div>
+    <div id="particles"></div>
+    <div class="app-shell">
+        <header class="topbar no-print">
+            <a class="brand" href="{% url 'home' %}">
+                <span class="brand-mark">A</span>
+                <span>Aegis Engine</span>
+            </a>
+            <nav class="nav" aria-label="Main navigation">
+                <a href="{% url 'home' %}">Home</a>
+                <a href="{% url 'about' %}">About</a>
+                <a href="{% url 'contact' %}">Contact</a>
+                <a href="{% url 'privacy' %}">Privacy</a>
+                <a href="{% url 'blogs' %}">Blogs</a>
+                {% if user.is_authenticated %}
+                    <span class="muted">Signed in: {{ user.username }}</span>
+                    <a href="{% url 'dashboard' %}">Dashboard</a>
+                    <a href="{% url 'launcher' %}">Launcher</a>
+                    <a href="{% url 'combined_scan' %}">Scan</a>
+                    <a href="{% url 'profile' %}">Profile</a>
+                    <a href="{% url 'osi_model' %}">OSI</a>
+                    {% if user.is_superuser %}
+                        <a href="{% url 'admin_dashboard' %}">Admin</a>
+                    {% endif %}
+                    <a href="{% url 'logout' %}">Logout</a>
+                {% else %}
+                    <a href="{% url 'login' %}">Login</a>
+                    <a href="{% url 'register' %}">Register</a>
+                {% endif %}
+                <button type="button" id="themeToggle">Day/Night</button>
+            </nav>
+        </header>
+
+        <main>
+            {% if messages %}
+                <div class="messages">
+                    {% for message in messages %}
+                        <div class="message {{ message.tags }}">{{ message }}</div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+            {% block content %}{% endblock %}
+        </main>
+    </div>
+    <script>
+        const savedTheme = localStorage.getItem("aegis-theme");
+        if (savedTheme === "light") document.body.classList.add("light");
+        document.getElementById("themeToggle").addEventListener("click", () => {
+            document.body.classList.toggle("light");
+            localStorage.setItem("aegis-theme", document.body.classList.contains("light") ? "light" : "dark");
+        });
+        const particles = document.getElementById("particles");
+        for (let i = 0; i < 38; i += 1) {
+            const dot = document.createElement("span");
+            dot.className = "particle";
+            dot.style.left = `${Math.random() * 100}vw`;
+            dot.style.animationDelay = `${Math.random() * 9}s`;
+            dot.style.animationDuration = `${7 + Math.random() * 8}s`;
+            particles.appendChild(dot);
+        }
+        document.querySelectorAll("[data-toggle-password]").forEach((button) => {
+            button.addEventListener("click", () => {
+                const input = document.querySelector(button.dataset.togglePassword);
+                if (!input) return;
+                input.type = input.type === "password" ? "text" : "password";
+                button.textContent = input.type === "password" ? "Show" : "Hide";
+            });
+        });
+    </script>
+</body>
+</html>

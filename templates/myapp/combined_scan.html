@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="panel">
+    <h1>Combined Security Scanner</h1>
+    <p>This one button runs system audit, process audit, startup audit, network audit, local port scanner, file monitoring review, threat-intel style checks, OSI mapping, scoring, and recommendations.</p>
+    <form method="post">
+        {% csrf_token %}
+        <button type="submit">Start Combined Scan</button>
+    </form>
+</section>
+
+{% if latest_scan %}
+<section class="panel" style="margin-top:16px;">
+    <h2>Latest Scan</h2>
+    <p>Score: <strong>{{ latest_scan.score }}</strong> | Risk: <strong class="risk-{{ latest_scan.risk_level }}">{{ latest_scan.risk_level }}</strong></p>
+    <a href="{% url 'scan_result' latest_scan.id %}" class="btn">Open Latest Result</a>
+</section>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="panel">
+    <h1>Threat Detection</h1>
+    <p>Runs process hunting, startup persistence review, suspicious file detection, MITRE ATT&CK hints, risk scoring, and remediation advice.</p>
+    <form method="post">
+        {% csrf_token %}
+        <button type="submit">Start Threat Detection Scan</button>
+    </form>
+</section>
+
+{% if incidents %}
+<section class="panel" style="margin-top:16px;">
+    <h2>Incidents</h2>
+    <table>
+        <tr><th>ID</th><th>Title</th><th>Severity</th><th>Status</th></tr>
+        {% for incident in incidents %}
+            <tr><td>{{ incident.incident_id }}</td><td>{{ incident.title }}</td><td>{{ incident.severity }}</td><td>{{ incident.status }}</td></tr>
+        {% endfor %}
+    </table>
+</section>
+{% endif %}
+
+{% if latest_scan %}
+<div class="actions">
+    <a href="{% url 'scan_result' latest_scan.id %}" class="btn">Open Latest Result</a>
+    <a href="{% url 'scan_pdf' latest_scan.id %}" class="btn">Download PDF</a>
+</div>
+{% endif %}
+{% endblock %}

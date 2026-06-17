@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="panel">
+    <h1>System Scanner</h1>
+    <p>Runs asset discovery, hardware profiling, endpoint fingerprinting, compliance review, file scan, startup audit, and the local port scanner.</p>
+    <form method="post">
+        {% csrf_token %}
+        <button type="submit">Start System Scan</button>
+    </form>
+</section>
+{% if latest_scan %}
+<div class="actions">
+    <a href="{% url 'scan_result' latest_scan.id %}" class="btn">Open Latest Result</a>
+    <a href="{% url 'scan_pdf' latest_scan.id %}" class="btn">Download PDF</a>
+</div>
+{% endif %}
+{% endblock %}

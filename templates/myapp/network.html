@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="panel">
+    <h1>Network Scanner</h1>
+    <p>Checks active TCP/UDP connections, common open ports, protocol usage, service purpose, harmful exposure, and remediation guidance.</p>
+    <form method="post">
+        {% csrf_token %}
+        <button type="submit">Start Network Scan</button>
+    </form>
+</section>
+{% if latest_scan %}
+<div class="actions">
+    <a href="{% url 'scan_result' latest_scan.id %}" class="btn">Open Latest Result</a>
+    <a href="{% url 'scan_pdf' latest_scan.id %}" class="btn">Download PDF</a>
+</div>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+{% block content %}
+<h2>Launcher</h2>
+<ul>
+  <li><a href="{% url 'system_features' %}">System Scan</a></li>
+  <li><a href="{% url 'network_details' %}">Network Threats</a></li>
+  <li><a href="{% url 'threat_detection' %}">Threat Detection</a></li>
+</ul>
+{% endblock %}

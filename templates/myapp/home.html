@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block content %}
+<section class="panel">
+    <h1>Aegis Engine</h1>
+    <p>Endpoint detection, system audit, network exposure review, file scanning, risk scoring, reporting, and admin monitoring in one local Django app.</p>
+    <div class="actions">
+        {% if user.is_authenticated %}
+            <a href="{% url 'combined_scan' %}" class="btn btn-primary">Start Combined Scan</a>
+            <a href="{% url 'dashboard' %}" class="btn">Open Dashboard</a>
+        {% else %}
+            <a href="{% url 'login' %}" class="btn btn-primary">Login</a>
+            <a href="{% url 'register' %}" class="btn">Register</a>
+        {% endif %}
+    </div>
+</section>
+
+<section class="grid" style="margin-top:16px;">
+    <div class="card"><h3>Collection Layer</h3><p>Asset discovery, hardware profiling, compliance, endpoint protection, users, network exposure, and landing zone files.</p></div>
+    <div class="card"><h3>Analysis Layer</h3><p>Threat hunting, startup audit, local malware heuristics, MITRE mapping, file integrity, and risk scoring.</p></div>
+    <div class="card"><h3>Response Layer</h3><p>Remediation advice, incident-ready results, quarantine guidance, and alert-style recommendations.</p></div>
+    <div class="card"><h3>Reporting Layer</h3><p>Executive report, technical scan result, JSON export, PDF download, audit trail, print, and share options.</p></div>
+</section>
+{% endblock %}

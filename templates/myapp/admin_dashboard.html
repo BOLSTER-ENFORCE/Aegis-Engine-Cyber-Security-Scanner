@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+{% block content %}
+<h1>Admin Dashboard</h1>
+<p class="muted">Only staff/superusers can access this page.</p>
+
+<div class="grid">
+    <div class="card"><h3>Total Users</h3><div class="stat">{{ user_count }}</div></div>
+    <div class="card"><h3>Total Scans</h3><div class="stat">{{ scan_count }}</div></div>
+    <div class="card"><h3>Logged In Users</h3><div class="stat">{{ active_users|length }}</div></div>
+</div>
+
+<section class="panel" style="margin-top:16px;">
+    <h2>Currently Logged In</h2>
+    <table>
+        <tr><th>Name</th><th>Gmail / Email</th><th>Superuser</th></tr>
+        {% for active in active_users %}
+            <tr><td>{{ active.username }}</td><td>{{ active.email }}</td><td>{{ active.is_superuser }}</td></tr>
+        {% empty %}
+            <tr><td colspan="3">No active logged-in users found.</td></tr>
+        {% endfor %}
+    </table>
+</section>
+
+<section class="panel" style="margin-top:16px;">
+    <h2>Usage By User And Option</h2>
+    <table>
+        <tr><th>User</th><th>Gmail / Email</th><th>Option Used</th><th>Times Used</th></tr>
+        {% for row in activity_summary %}
+            <tr>
+                <td>{{ row.user__username }}</td>
+                <td>{{ row.user__email }}</td>
+                <td>{{ row.option_used }}</td>
+                <td>{{ row.total }}</td>
+            </tr>
+        {% empty %}
+            <tr><td colspan="4">No activity yet.</td></tr>
+        {% endfor %}
+    </table>
+</section>
+
+<section class="panel" style="margin-top:16px;">
+    <h2>Latest Scans</h2>
+    <table>
+        <tr><th>User</th><th>Email</th><th>Type</th><th>Score</th><th>Risk</th><th>When</th><th>Open</th></tr>
+        {% for scan in latest_scans %}
+            <tr>
+                <td>{{ scan.user.username }}</td>
+                <td>{{ scan.user.email }}</td>
+                <td>{{ scan.scan_type }}</td>
+                <td>{{ scan.score }}</td>
+                <td>{{ scan.risk_level }}</td>
+                <td>{{ scan.created_at }}</td>
+                <td><a href="{% url 'scan_result' scan.id %}">View</a></td>
+            </tr>
+        {% empty %}
+            <tr><td colspan="7">No scans yet.</td></tr>
+        {% endfor %}
+    </table>
+</section>
+
+<section class="panel" style="margin-top:16px;">
+    <h2>Suggestions And Complaints</h2>
+    <table>
+        <tr><th>Name</th><th>Email</th><th>Type</th><th>Message</th><th>Date</th></tr>
+        {% for contact in contacts %}
+            <tr>
+                <td>{{ contact.name }}</td>
+                <td>{{ contact.email }}</td>
+                <td>{{ contact.message_type }}</td>
+                <td>{{ contact.message }}</td>
+                <td>{{ contact.created_at }}</td>
+            </tr>
+        {% empty %}
+            <tr><td colspan="5">No contact messages yet.</td></tr>
+        {% endfor %}
+    </table>
+</section>
+{% endblock %}
